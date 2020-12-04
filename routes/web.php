@@ -47,6 +47,3 @@ Route::prefix('/user')->group(function () {
  * File upload (e.g. avatar)
  * */
 Route::post('/files/store', 'FilesController@store');
-
-
-Route::get('/home', 'HomeController@index')->name('home');

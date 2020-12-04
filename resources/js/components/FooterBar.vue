@@ -11,7 +11,6 @@
           <div class="level-item">
             <div class="logo">
               <a href="https://justboil.me">
-                <img src="/images/justboil-logo.svg" alt="JustBoil.me"/>
               </a>
             </div>
           </div>

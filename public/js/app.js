@@ -2052,6 +2052,14 @@ __webpack_require__.r(__webpack_exports__);
         to: '/',
         icon: 'desktop-mac',
         label: 'Dashboard'
+      }], 'Production', [{
+        to: '/production/index',
+        label: 'Current production',
+        icon: 'crane'
+      }, {
+        to: '/users/index',
+        label: 'Products',
+        icon: 'package-variant-closed'
       }], 'Resource', [{
         to: '/clients/index',
         label: 'Clients',
@@ -2637,7 +2645,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-//
 //
 //
 //
@@ -63262,8 +63269,8 @@ var render = function() {
     [
       _c("aside-tools", { attrs: { "is-main-menu": true } }, [
         _c("span", { attrs: { slot: "label" }, slot: "label" }, [
-          _c("b", [_vm._v("Admin")]),
-          _vm._v(" One\n    ")
+          _c("b", [_vm._v("UBIS")]),
+          _vm._v(" UI\n    ")
         ])
       ]),
       _vm._v(" "),
@@ -63885,11 +63892,7 @@ var staticRenderFns = [
     return _c("div", { staticClass: "level-right" }, [
       _c("div", { staticClass: "level-item" }, [
         _c("div", { staticClass: "logo" }, [
-          _c("a", { attrs: { href: "https://justboil.me" } }, [
-            _c("img", {
-              attrs: { src: "/images/justboil-logo.svg", alt: "JustBoil.me" }
-            })
-          ])
+          _c("a", { attrs: { href: "https://justboil.me" } })
         ])
       ])
     ])
