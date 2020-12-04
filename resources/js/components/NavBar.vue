@@ -19,7 +19,7 @@
       <div class="navbar-end">
         <nav-bar-menu class="has-divider">
           <b-icon icon="menu" custom-size="default"/>
-          <span>Sample Menu</span>
+          <span>New Sample Menu</span>
           <div slot="dropdown" class="navbar-dropdown">
             <router-link to="/profile" class="navbar-item" exact-active-class="is-active">
               <b-icon icon="account" custom-size="default"/>

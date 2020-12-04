@@ -11,9 +11,12 @@
 |
 */
 
+/*
 Route::get('/', function () {
     return view('welcome');
 });
+*/
+Route::get('/', 'HomeController@index')->name('home');
 
 Auth::routes();
 
@@ -45,6 +48,5 @@ Route::prefix('/user')->group(function () {
  * */
 Route::post('/files/store', 'FilesController@store');
 
-Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

@@ -5,7 +5,7 @@
         @component('components.card')
             @slot('title')
                 <span class="icon"><i class="mdi mdi-laravel"></i></span>
-                <span>Laravel Demo</span>
+                <span>UBIS - Produktions Informationssystem</span>
             @endslot
 
             <div class="content">

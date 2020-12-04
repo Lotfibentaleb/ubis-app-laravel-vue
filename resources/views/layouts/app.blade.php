@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'JustBoil Admin One') }}</title>
+    <title>{{ config('app.name', 'UBIS - Semsotec Production Control System') }}</title>
 
     {{-- Scripts --}}
     @stack('head-scripts')

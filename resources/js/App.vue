@@ -39,6 +39,13 @@ export default {
             icon: 'account-multiple',
             updateMark: true
           },
+          {
+            to: '/users/index',
+            label: 'Users',
+            icon: 'account-multiple',
+            updateMark: true
+          },
+
         ],
         'Examples',
         [

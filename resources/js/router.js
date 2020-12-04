@@ -42,7 +42,13 @@ export default new Router({
       name: 'clients.edit',
       component: () => import('./views/Clients/ClientsForm.vue'),
       props: true
-    }
+    },
+    {
+      path: '/users/index',
+      name: 'users.index',
+      component: () => import('./views/Users/UsersIndex.vue'),
+    },
+
   ],
   scrollBehavior (to, from, savedPosition) {
     if (savedPosition) {
