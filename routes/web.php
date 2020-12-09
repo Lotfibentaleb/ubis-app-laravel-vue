@@ -48,4 +48,4 @@ Route::prefix('/user')->group(function () {
  * */
 Route::post('/files/store', 'FilesController@store');
 
-Route::get('/test', test::class);
+Route::get('/test/{id}', test::class);
