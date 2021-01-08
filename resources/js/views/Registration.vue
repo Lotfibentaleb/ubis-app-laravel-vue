@@ -6,7 +6,7 @@
     </hero-bar>
     <section class="section is-main-section">
 
-<card-component title="Artikel" class="has-mobile-sort-spaced" icon="filter">
+<card-component title="Artikel" class="has-mobile-sort-spaced" icon="filter" >
 
             <b-autocomplete
                 :data="articleData"
@@ -14,24 +14,25 @@
                 field="title"
                 :loading="isFetching"
                 @typing="getAsyncArticleData"
-                @select="option => selected = option">
+                @select="option => selected = option"
+                v-show="selected == null">
 
                 <template slot-scope="props">
                     <div class="media">
                         <div class="media-left">
-                            <img width="32" :src="`https://image.tmdb.org/t/p/w500/${props.option.poster_path}`">
+                            <img width="32" :src="`https://image.tmdb.org/t/p/w500/${props.option.image}`">
                         </div>
                         <div class="media-content">
-                            {{ props.option.title }}
+                            {{ props.option.articleNumber }}
                             <br>
                             <small>
-                                Released at {{ props.option.release_date }},
-                                rated <b>{{ props.option.vote_average }}</b>
+                                {{ props.option.name }}
                             </small>
                         </div>
                     </div>
                 </template>
             </b-autocomplete>
+            <p class="content" v-if="selected != null">{{ selected.articleNumber }} {{ selected.name }}</p>
 
 </card-component>
 
@@ -92,24 +93,21 @@ export default {
         this.isFetching = true
 // FUCKING COOOOORS !!!!!!!!!!!!!!!!!!!!!!!!!!!
         axios
-          .get(`https://api.themoviedb.org/3/search/movie?api_key=bb6f51bef07465653c3e553d6ab161a8&query=${name}`, {
+          .get(`http://127.0.0.1:8000/api/articles?size=10&short=1&search_artnr=${name}`, {
               headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
               "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
               "Access-Control-Allow-Headers": "Authorization, Content-Type, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Range"
-              },
-              proxy: {
-	              host: '104.236.174.88',
-	              port: 3128
-          	  }
+              }
           })
           .then( result => {
             console.log('inside then');
-            console.log(result)
+            console.log(result.data)
             this.isFetching = false
             this.articleData = []
-            result.data.forEach((item) => this.articleData.push(item))
+            result.data.data.forEach((item) => this.articleData.push(item))
+            console.log(this.articleData)
           })
           .catch( error => {
             console.log('inside catch');
@@ -135,7 +133,6 @@ export default {
 
           })
           .finally(() => {
-            console.log('Finally')
             this.isFetching = false
           })
       },

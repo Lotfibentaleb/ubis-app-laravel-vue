@@ -2296,6 +2296,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // @ is an alias to /src
 
 
@@ -2332,25 +2333,22 @@ __webpack_require__.r(__webpack_exports__);
 
       this.isFetching = true; // FUCKING COOOOORS !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      axios.get("https://api.themoviedb.org/3/search/movie?api_key=bb6f51bef07465653c3e553d6ab161a8&query=".concat(name), {
+      axios.get("http://127.0.0.1:8000/api/articles?size=10&short=1&search_artnr=".concat(name), {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Authorization, Content-Type, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Range"
-        },
-        proxy: {
-          host: '104.236.174.88',
-          port: 3128
         }
       }).then(function (result) {
         console.log('inside then');
-        console.log(result);
+        console.log(result.data);
         _this.isFetching = false;
         _this.articleData = [];
-        result.data.forEach(function (item) {
+        result.data.data.forEach(function (item) {
           return _this.articleData.push(item);
         });
+        console.log(_this.articleData);
       })["catch"](function (error) {
         console.log('inside catch');
 
@@ -2374,7 +2372,6 @@ __webpack_require__.r(__webpack_exports__);
           console.log('Error', error.message);
         }
       })["finally"](function () {
-        console.log('Finally');
         _this.isFetching = false;
       });
     }, 500)
@@ -24631,6 +24628,14 @@ var render = function() {
             },
             [
               _c("b-autocomplete", {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: _vm.selected == null,
+                    expression: "selected == null"
+                  }
+                ],
                 attrs: {
                   data: _vm.articleData,
                   placeholder: "e.g. SCON",
@@ -24655,7 +24660,7 @@ var render = function() {
                                 width: "32",
                                 src:
                                   "https://image.tmdb.org/t/p/w500/" +
-                                  props.option.poster_path
+                                  props.option.image
                               }
                             })
                           ]),
@@ -24663,20 +24668,17 @@ var render = function() {
                           _c("div", { staticClass: "media-content" }, [
                             _vm._v(
                               "\n                            " +
-                                _vm._s(props.option.title) +
+                                _vm._s(props.option.articleNumber) +
                                 "\n                            "
                             ),
                             _c("br"),
                             _vm._v(" "),
                             _c("small", [
                               _vm._v(
-                                "\n                                Released at " +
-                                  _vm._s(props.option.release_date) +
-                                  ",\n                                rated "
-                              ),
-                              _c("b", [
-                                _vm._v(_vm._s(props.option.vote_average))
-                              ])
+                                "\n                                " +
+                                  _vm._s(props.option.name) +
+                                  "\n                            "
+                              )
                             ])
                           ])
                         ])
@@ -24684,7 +24686,17 @@ var render = function() {
                     }
                   }
                 ])
-              })
+              }),
+              _vm._v(" "),
+              _vm.selected != null
+                ? _c("p", { staticClass: "content" }, [
+                    _vm._v(
+                      _vm._s(_vm.selected.articleNumber) +
+                        " " +
+                        _vm._s(_vm.selected.name)
+                    )
+                  ])
+                : _vm._e()
             ],
             1
           ),
