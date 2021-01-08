@@ -36,7 +36,7 @@
 /******/ 	// undefined = chunk not loaded, null = chunk preloaded/prefetched
 /******/ 	// Promise = chunk loading, 0 = chunk loaded
 /******/ 	var installedChunks = {
-/******/ 		"/js/app": 0
+/******/ 		"/resources/js/registrationapp": 0
 /******/ 	};
 /******/
 /******/
@@ -82705,7 +82705,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/profile',
     name: 'profile',
     component: function component() {
-      return __webpack_require__.e(/*! import() */ 9).then(__webpack_require__.bind(null, /*! ./views/Profile.vue */ "./resources/js/views/Profile.vue"));
+      return __webpack_require__.e(/*! import() */ 3).then(__webpack_require__.bind(null, /*! ./views/Profile.vue */ "./resources/js/views/Profile.vue"));
     }
   }, {
     path: '/clients/index',
@@ -82717,13 +82717,13 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/clients/new',
     name: 'clients.new',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(3), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
     }
   }, {
     path: '/clients/:id',
     name: 'clients.edit',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(3), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
     },
     props: true
   }, {

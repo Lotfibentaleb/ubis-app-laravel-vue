@@ -49,3 +49,12 @@ Route::prefix('/user')->group(function () {
 Route::post('/files/store', 'FilesController@store');
 
 Route::get('/test/{id}', test::class);
+
+/*
+ * Device registration management
+ * */
+
+Route::prefix('/registration')->group(function () {
+    Route::get('', 'RegistrationController@index');
+});
+
