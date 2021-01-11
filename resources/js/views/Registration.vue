@@ -10,7 +10,7 @@
 
             <b-autocomplete
                 :data="articleData"
-                placeholder="e.g. SCON"
+                placeholder="e.g. 800000114B2"
                 field="title"
                 :loading="isFetching"
                 @typing="getAsyncArticleData"
@@ -26,6 +26,7 @@
                             {{ props.option.articleNumber }}
                             <br>
                             <small>
+                                <div v-show="props.option.productionArticle == true">- Produktions Artikel -</div>
                                 {{ props.option.name }}
                             </small>
                         </div>
@@ -79,8 +80,13 @@ export default {
     HeroBar,
   },
   computed: {
+    'server_data': function(){
+      return window.exdata;
+    },
   },
   mounted () {
+    console.log('Inside mounted');
+    console.log(this.server_data);
   },
   methods: {
     // You have to install and import debounce to use it,
@@ -91,9 +97,9 @@ export default {
             return
         }
         this.isFetching = true
-// FUCKING COOOOORS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         axios
-          .get(`http://127.0.0.1:8000/api/articles?size=10&short=1&search_artnr=${name}`, {
+          .get(`/registration/articles?size=10&short=1&search_artnr=${name}`, {
               headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",

@@ -2297,6 +2297,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // @ is an alias to /src
 
 
@@ -2318,8 +2319,15 @@ __webpack_require__.r(__webpack_exports__);
     Tiles: _components_Tiles__WEBPACK_IMPORTED_MODULE_1__["default"],
     HeroBar: _components_HeroBar__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  computed: {},
-  mounted: function mounted() {},
+  computed: {
+    'server_data': function server_data() {
+      return window.exdata;
+    }
+  },
+  mounted: function mounted() {
+    console.log('Inside mounted');
+    console.log(this.server_data);
+  },
   methods: {
     // You have to install and import debounce to use it,
     // it's not mandatory though.
@@ -2331,9 +2339,8 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
 
-      this.isFetching = true; // FUCKING COOOOORS !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-      axios.get("http://127.0.0.1:8000/api/articles?size=10&short=1&search_artnr=".concat(name), {
+      this.isFetching = true;
+      axios.get("/registration/articles?size=10&short=1&search_artnr=".concat(name), {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
@@ -24638,7 +24645,7 @@ var render = function() {
                 ],
                 attrs: {
                   data: _vm.articleData,
-                  placeholder: "e.g. SCON",
+                  placeholder: "e.g. 800000114B2",
                   field: "title",
                   loading: _vm.isFetching
                 },
@@ -24674,6 +24681,22 @@ var render = function() {
                             _c("br"),
                             _vm._v(" "),
                             _c("small", [
+                              _c(
+                                "div",
+                                {
+                                  directives: [
+                                    {
+                                      name: "show",
+                                      rawName: "v-show",
+                                      value:
+                                        props.option.productionArticle == true,
+                                      expression:
+                                        "props.option.productionArticle == true"
+                                    }
+                                  ]
+                                },
+                                [_vm._v("- Produktions Artikel -")]
+                              ),
                               _vm._v(
                                 "\n                                " +
                                   _vm._s(props.option.name) +
