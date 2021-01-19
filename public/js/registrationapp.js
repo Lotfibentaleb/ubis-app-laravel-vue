@@ -2295,9 +2295,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 // @ is an alias to /src
 
 
@@ -24619,7 +24616,7 @@ var render = function() {
     { staticClass: "container" },
     [
       _c("hero-bar", [
-        _vm._v("\n      UBIS - Product Registration\n      "),
+        _vm._v("\n    UBIS - Product Registration\n    "),
         _c("p", { staticClass: "subtitle" }, [_vm._v("Neues Produkt erzeugen")])
       ]),
       _vm._v(" "),
@@ -24674,9 +24671,9 @@ var render = function() {
                           _vm._v(" "),
                           _c("div", { staticClass: "media-content" }, [
                             _vm._v(
-                              "\n                            " +
+                              "\n                      " +
                                 _vm._s(props.option.articleNumber) +
-                                "\n                            "
+                                "\n                      "
                             ),
                             _c("br"),
                             _vm._v(" "),
@@ -24698,9 +24695,9 @@ var render = function() {
                                 [_vm._v("- Produktions Artikel -")]
                               ),
                               _vm._v(
-                                "\n                                " +
+                                "\n                          " +
                                   _vm._s(props.option.name) +
-                                  "\n                            "
+                                  "\n                      "
                               )
                             ])
                           ])
@@ -24712,7 +24709,7 @@ var render = function() {
               }),
               _vm._v(" "),
               _vm.selected != null
-                ? _c("p", { staticClass: "content" }, [
+                ? _c("p", { staticClass: "title" }, [
                     _vm._v(
                       _vm._s(_vm.selected.articleNumber) +
                         " " +
@@ -24723,6 +24720,23 @@ var render = function() {
             ],
             1
           ),
+          _vm._v(" "),
+          _vm.selected != null
+            ? _c(
+                "card-component",
+                {
+                  staticClass: "has-mobile-sort-spaced",
+                  attrs: { title: "Details", icon: "view-grid" }
+                },
+                [
+                  _c(
+                    "p",
+                    { staticClass: "content", attrs: { type: "is-primary" } },
+                    [_vm._v("\n        sfsfg\n      ")]
+                  )
+                ]
+              )
+            : _vm._e(),
           _vm._v(" "),
           _c(
             "tiles",
@@ -24760,12 +24774,7 @@ var render = function() {
               })
             ],
             1
-          ),
-          _vm._v(" "),
-          _c("card-component", {
-            staticClass: "has-table has-mobile-sort-spaced",
-            attrs: { title: "Clients", icon: "account-edit" }
-          })
+          )
         ],
         1
       )

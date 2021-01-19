@@ -5,37 +5,40 @@
       <p class="subtitle">Neues Produkt erzeugen</p>
     </hero-bar>
     <section class="section is-main-section">
+      <card-component title="Artikel" class="has-mobile-sort-spaced" icon="filter" >
+        <b-autocomplete
+            :data="articleData"
+            placeholder="e.g. 800000114B2"
+            field="title"
+            :loading="isFetching"
+            @typing="getAsyncArticleData"
+            @select="option => selected = option"
+            v-show="selected == null">
 
-<card-component title="Artikel" class="has-mobile-sort-spaced" icon="filter" >
-
-            <b-autocomplete
-                :data="articleData"
-                placeholder="e.g. 800000114B2"
-                field="title"
-                :loading="isFetching"
-                @typing="getAsyncArticleData"
-                @select="option => selected = option"
-                v-show="selected == null">
-
-                <template slot-scope="props">
-                    <div class="media">
-                        <div class="media-left">
-                            <img width="32" :src="`https://image.tmdb.org/t/p/w500/${props.option.image}`">
-                        </div>
-                        <div class="media-content">
-                            {{ props.option.articleNumber }}
-                            <br>
-                            <small>
-                                <div v-show="props.option.productionArticle == true">- Produktions Artikel -</div>
-                                {{ props.option.name }}
-                            </small>
-                        </div>
+            <template slot-scope="props">
+                <div class="media">
+                    <div class="media-left">
+                        <img width="32" :src="`https://image.tmdb.org/t/p/w500/${props.option.image}`">
                     </div>
-                </template>
-            </b-autocomplete>
-            <p class="content" v-if="selected != null">{{ selected.articleNumber }} {{ selected.name }}</p>
+                    <div class="media-content">
+                        {{ props.option.articleNumber }}
+                        <br>
+                        <small>
+                            <div v-show="props.option.productionArticle == true">- Produktions Artikel -</div>
+                            {{ props.option.name }}
+                        </small>
+                    </div>
+                </div>
+            </template>
+        </b-autocomplete>
+        <p class="title" v-if="selected != null">{{ selected.articleNumber }} {{ selected.name }}</p>
+      </card-component>
 
-</card-component>
+      <card-component title="Details" class="has-mobile-sort-spaced" icon="view-grid" v-if="selected != null">
+        <p class="content" type="is-primary" >
+          sfsfg
+        </p>
+      </card-component>
 
       <tiles>
         <card-widget class="tile is-child" type="is-primary" icon="account-multiple" :number="512" label="Clients"/>
@@ -43,13 +46,7 @@
         <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
       </tiles>
 
-      <card-component title="Clients" class="has-table has-mobile-sort-spaced" icon="account-edit">
-
-      </card-component>
-
     </section>
-
-
   </div>
 </template>
 
@@ -62,6 +59,8 @@ import Tiles from '@/components/Tiles'
 import CardWidget from '@/components/CardWidget'
 import CardComponent from '@/components/CardComponent'
 import debounce from 'lodash/debounce'
+
+
 
 export default {
   data() {
@@ -77,7 +76,7 @@ export default {
     CardComponent,
     CardWidget,
     Tiles,
-    HeroBar,
+    HeroBar
   },
   computed: {
     'server_data': function(){
