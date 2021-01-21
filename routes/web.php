@@ -56,6 +56,7 @@ Route::get('/test/{id}', test::class);
 
 Route::prefix('/registration')->group(function () {
     Route::get('', 'RegistrationController@index');
-    Route::get('/articles', 'RegistrationController@articles');
+    Route::get('/articles', 'RegistrationController@articles');     // list several articles by name/art.nr.
+    Route::get('/articles/{id}', 'RegistrationController@article');  // get back details per article
 });
 

@@ -7,22 +7,25 @@
     <section class="section is-main-section">
       <card-component title="Artikel" class="has-mobile-sort-spaced" icon="filter" >
         <b-autocomplete
-            :data="articleData"
+            :data="articleList"
             placeholder="e.g. 800000114B2"
             field="title"
-            :loading="isFetching"
-            @typing="getAsyncArticleData"
-            @select="option => selected = option"
-            v-show="selected == null">
+            :loading="isFetchingArticleList"
+            @typing="getAsyncArticleList"
+            @select="option => articleSelected = option"
+            v-show="articleSelected == null"
+            size="is-medium"
+            >
 
             <template slot-scope="props">
                 <div class="media">
+                  <!--
                     <div class="media-left">
                         <img width="32" :src="`https://image.tmdb.org/t/p/w500/${props.option.image}`">
                     </div>
+                    -->
                     <div class="media-content">
-                        {{ props.option.articleNumber }}
-                        <br>
+                        {{ props.option.articleNumber }}<br>
                         <small>
                             <div v-show="props.option.productionArticle == true">- Produktions Artikel -</div>
                             {{ props.option.name }}
@@ -31,20 +34,28 @@
                 </div>
             </template>
         </b-autocomplete>
-        <p class="title" v-if="selected != null">{{ selected.articleNumber }} {{ selected.name }}</p>
+        <div v-if="articleSelected != null">
+          <p class="title" >{{ articleSelected.articleNumber }} - {{ articleSelected.name }}</p>
+          <div class="level">
+            <div>
+              <p class="heading">Serial Nr</p>
+              <p class="subtitle is-5 has-text-grey-lighter">{{productSerial}}</p>
+            </div>
+            <div>
+              <p class="heading">ID</p>
+              <p class="subtitle is-5 has-text-grey-lighter">{{productId}}</p>
+            </div>
+          </div>
+          <div class="buttons">
+              <b-button @click="newProduct" type="subtitle is-5 is-light" outlined expanded>Neues Produkt anlegen</b-button>
+          </div>
+        </div>
       </card-component>
 
-      <card-component title="Details" class="has-mobile-sort-spaced" icon="view-grid" v-if="selected != null">
-        <p class="content" type="is-primary" >
-          sfsfg
-        </p>
-      </card-component>
-
-      <tiles>
-        <card-widget class="tile is-child" type="is-primary" icon="account-multiple" :number="512" label="Clients"/>
-        <card-widget class="tile is-child" type="is-info" icon="cart-outline" :number="7770" prefix="$" label="Sales"/>
-        <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
-      </tiles>
+      <!-- show all possible sub components -->
+      <div v-for="item in this.articleDetails.bom" :key="item.name">
+          <sub-component :componentdata=item></sub-component>
+      </div>
 
     </section>
   </div>
@@ -59,15 +70,20 @@ import Tiles from '@/components/Tiles'
 import CardWidget from '@/components/CardWidget'
 import CardComponent from '@/components/CardComponent'
 import debounce from 'lodash/debounce'
+import SubComponent from './SubComponent.vue'
 
 
 
 export default {
   data() {
       return {
-          articleData: [],
-          selected: null,
-          isFetching: false
+          articleList: [],
+          articleSelected: null,
+          isFetchingArticleList: false,
+          isFetchingArticleDetails: false,
+          articleDetails: [],
+          productSerial: '-',
+          productId: '-'
       }
   },
 
@@ -76,7 +92,8 @@ export default {
     CardComponent,
     CardWidget,
     Tiles,
-    HeroBar
+    HeroBar,
+    SubComponent
   },
   computed: {
     'server_data': function(){
@@ -87,18 +104,11 @@ export default {
     console.log('Inside mounted');
     console.log(this.server_data);
   },
-  methods: {
-    // You have to install and import debounce to use it,
-    // it's not mandatory though.
-    getAsyncArticleData: debounce(function (name) {
-        if (!name.length) {
-            this.articleData = []
-            return
-        }
-        this.isFetching = true
-
-        axios
-          .get(`/registration/articles?size=10&short=1&search_artnr=${name}`, {
+  watch: {
+    articleSelected: function(){
+      this.articleDetails = []
+      this.isFetchingArticleDetails = true
+      axios.get(`/registration/articles/${this.articleSelected.articleNumber}`, {
               headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
@@ -107,15 +117,66 @@ export default {
               }
           })
           .then( result => {
-            console.log('inside then');
-            console.log(result.data)
-            this.isFetching = false
-            this.articleData = []
-            result.data.data.forEach((item) => this.articleData.push(item))
-            console.log(this.articleData)
+            console.log('Article details');
+            console.log(result.data.data)
+            this.isFetchingArticleDetails = false
+            this.articleDetails = result.data.data
           })
           .catch( error => {
-            console.log('inside catch');
+            if (error.request) {
+              console.log(error.request);
+            }else  if (error.response) {
+              console.log(error.response.data);
+              console.log(error.response.status);
+              console.log(error.response.headers);
+             } else {
+              console.log('Error', error.message);
+             }
+
+          })
+          .finally(() => {
+            this.isFetchingArticleDetails = false
+          })
+    }
+  },
+  methods: {
+
+    newProduct () {
+          this.productSerial = '-'
+          this.productId = '-'
+          // trigger reactivity @TODO: to avoid refetching, cleanup form
+          let article = this.articleSelected
+          this.articleSelected = null
+          this.articleSelected = article
+
+    },
+    // You have to install and import debounce to use it,
+    // it's not mandatory though.
+    getAsyncArticleList: debounce(function (name) {
+        if (!name.length) {
+            this.articleList = []
+            return
+        }
+        this.isFetchingArticleList = true
+
+        axios
+          .get(`/registration/articles?search_artnr=${name}`, {
+              headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
+              "Access-Control-Allow-Headers": "Authorization, Content-Type, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Range"
+              }
+          })
+          .then( result => {
+            console.log('Article list');
+            console.log(result.data)
+            this.isFetchingArticleList = false
+            this.articleList = []
+            result.data.data.forEach((item) => this.articleList.push(item))
+            console.log(this.articleList)
+          })
+          .catch( error => {
             if (error.request) {
               /*
               * The request was made but no response was received, `error.request`
@@ -138,10 +199,10 @@ export default {
 
           })
           .finally(() => {
-            this.isFetching = false
+            this.isFetchingArticleList = false
           })
       },
-     500)
+     250)
   }
 }
 </script>
