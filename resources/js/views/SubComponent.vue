@@ -4,14 +4,15 @@
       <div class="level">
         <div class="level-left">
           <h5 class="title is-5">
-            {{componentdata.articleNumber}} - {{componentdata.name}}
+            {{componentarticledata.articleNumber}} - {{componentarticledata.name}}
           </h5>
         </div>
         <div class="level-right">
           <b-field label="Serial number" label-position="on-border">
-            <b-input :value="serial" size="is-medium" @change.native="serial = $event.target.value"/>
+            <b-input :value="component_serial" size="is-medium" @change.native="component_serial = $event.target.value" :disabled="component_id != null"/>
              <p class="control">
-                <b-button v-bind:type="save_button_type" label="Save" size="is-medium" v-bind:outlined="save_button_outlined"/>
+                <b-button v-show="component_id == null" type="is-success" label="Save" size="is-medium"/>
+                <b-button v-show="component_id != null" @click="submitComponent(true)" type="is-dark" label="Delete" size="is-medium"/>
             </p>
           </b-field>
         </div>
@@ -27,23 +28,19 @@ export default {
   name: 'SubComponent',
   components: { CardComponent },
   props: {
-    id: {
-      default: null
-    },
-    componentdata: {
-      type: Object,
-      required: true
-    }
+    id: { default: null },
+    componentarticledata: { type: Object, required: true },
+    articledata: { type: Object, required: true },
+    productid: { default: null },
+    productserial: { default: null },
+    component_serial:{ default: null },
+    component_id:{ default: null }
   },
   data () {
     return {
-      serial: null,
-      isLoading: false,
-      item: null,
-      form: null,
-      createdReadable: null,
-      save_button_type: "is-success",
-      save_button_outlined: false
+      transmissionActive: false,
+//      component_serial: null,
+//      component_id: null
     }
   },
   computed: {
@@ -51,75 +48,59 @@ export default {
   created () {
   },
   methods: {
-    getData () {
-      if (this.id) {
-        axios
-          .get(`/clients/${this.id}`)
-          .then(r => {
-            this.form = r.data.data
-            this.item = clone(r.data.data)
-
-            this.form.created_date = new Date(r.data.data.created_mm_dd_yyyy)
-          })
-          .catch(e => {
-            this.item = null
-
-            this.$buefy.toast.open({
-              message: `Error: ${e.message}`,
-              type: 'is-danger',
-              queue: false
-            })
-          })
-      }
+    // Emit product and serial nr to parent on creation
+    productUpdate: function(productSerial, productId) {
+      this.$emit('productUpdate', productId, productSerial)
     },
-    submit () {
-      this.isLoading = true
+    submitComponent: function(deleteComponent = false) {
+      this.transmissionActive = true
       let method = 'post'
-      let url = '/clients/store'
-
-      if (this.id) {
-        method = 'patch'
-        url = `/clients/${this.id}`
+      let url = `/registration/product/${this.productid}/articleNr/${this.articledata.articleNumber}`
+      let data = {
+        component_article_nr: `${this.componentarticledata.articleNumber}`,
+        component_serial_nr: `${this.component_serial}`,
+      }
+      if( deleteComponent ){
+        method = 'delete'
+        // 'products/{id}/components/{componentId}
+        url = `/registration/product/${this.productid}/components/${this.component_id}`
       }
 
       axios({
         method,
         url,
-        data: this.form
-      }).then(r => {
-        this.isLoading = false
-
-        if (!this.id && r.data.data.id) {
-          this.$router.push({name: 'clients.edit', params: {id: r.data.data.id}})
-
-          this.$buefy.snackbar.open({
-            message: 'Created',
-            queue: false
-          })
-        } else {
-          this.item = r.data.data
-
-          this.$buefy.snackbar.open({
-            message: 'Updated',
-            queue: false
-          })
+        data
+      }).then( r => {
+        r = r.data.data
+        console.log(r)
+        let infoMessage = `Component stored`
+        if( deleteComponent ){
+          infoMessage = `Component removed`
+          this.component_id = null
+          this.component_serial = null
+        }else{
+          this.productUpdate(r.product_serial, r.product_id)
+          this.component_id = r.component_id
         }
-      }).catch(e => {
-        this.isLoading = false
-
+        this.$buefy.snackbar.open({
+          message: infoMessage,
+          queue: false
+        })
+      }).catch( err => {
         this.$buefy.toast.open({
-          message: `Error: ${e.message}`,
+          message: `Error: ${err.message}`,
           type: 'is-danger',
           queue: false
         })
+      }).finally(() => {
+        this.transmissionActive = false
       })
     }
   },
   watch: {
-    serial : function() {
-      console.log(this.serial)
-      this.save_button_outlined = true
-//      this.save_button_type = "is-light"
+    component_serial : function() {
+      if( !this.transmissionActive )  // mutal exclusive sending
+        this.submitComponent(false);
     }
   }
 }

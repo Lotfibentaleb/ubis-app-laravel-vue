@@ -39,11 +39,11 @@
           <div class="level">
             <div>
               <p class="heading">Serial Nr</p>
-              <p class="subtitle is-5 has-text-grey-lighter">{{productSerial}}</p>
+              <p v-bind:class="product_info_class">{{productSerial}}</p>
             </div>
             <div>
               <p class="heading">ID</p>
-              <p class="subtitle is-5 has-text-grey-lighter">{{productId}}</p>
+              <p v-bind:class="product_info_class">{{productId}}</p>
             </div>
           </div>
           <div class="buttons">
@@ -54,7 +54,7 @@
 
       <!-- show all possible sub components -->
       <div v-for="item in this.articleDetails.bom" :key="item.name">
-          <sub-component :componentdata=item></sub-component>
+          <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articledata="articleDetails" :productid="productId" :productserial="productSerial"></sub-component>
       </div>
 
     </section>
@@ -83,7 +83,8 @@ export default {
           isFetchingArticleDetails: false,
           articleDetails: [],
           productSerial: '-',
-          productId: '-'
+          productId: '-',
+          product_info_class: 'subtitle is-5 has-text-grey-lighter'
       }
   },
 
@@ -140,7 +141,11 @@ export default {
     }
   },
   methods: {
-
+    handleProductUpdate: function(productId, productSerial){
+      this.productSerial = productSerial
+      this.productId = productId
+      this.product_info_class = 'subtitle is-5 has-text-grey-darker'
+    },
     newProduct () {
           this.productSerial = '-'
           this.productId = '-'

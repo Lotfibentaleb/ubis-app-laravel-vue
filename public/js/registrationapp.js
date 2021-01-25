@@ -2323,7 +2323,8 @@ __webpack_require__.r(__webpack_exports__);
       isFetchingArticleDetails: false,
       articleDetails: [],
       productSerial: '-',
-      productId: '-'
+      productId: '-',
+      product_info_class: 'subtitle is-5 has-text-grey-lighter'
     };
   },
   name: 'home',
@@ -2377,6 +2378,11 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    handleProductUpdate: function handleProductUpdate(productId, productSerial) {
+      this.productSerial = productSerial;
+      this.productId = productId;
+      this.product_info_class = 'subtitle is-5 has-text-grey-darker';
+    },
     newProduct: function newProduct() {
       this.productSerial = '-';
       this.productId = '-'; // trigger reactivity @TODO: to avoid refetching, cleanup form
@@ -2473,6 +2479,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'SubComponent',
@@ -2483,98 +2490,97 @@ __webpack_require__.r(__webpack_exports__);
     id: {
       "default": null
     },
-    componentdata: {
+    componentarticledata: {
       type: Object,
       required: true
+    },
+    articledata: {
+      type: Object,
+      required: true
+    },
+    productid: {
+      "default": null
+    },
+    productserial: {
+      "default": null
+    },
+    component_serial: {
+      "default": null
+    },
+    component_id: {
+      "default": null
     }
   },
   data: function data() {
     return {
-      serial: null,
-      isLoading: false,
-      item: null,
-      form: null,
-      createdReadable: null,
-      save_button_type: "is-success",
-      save_button_outlined: false
+      transmissionActive: false //      component_serial: null,
+      //      component_id: null
+
     };
   },
   computed: {},
   created: function created() {},
   methods: {
-    getData: function getData() {
+    // Emit product and serial nr to parent on creation
+    productUpdate: function productUpdate(productSerial, productId) {
+      this.$emit('productUpdate', productId, productSerial);
+    },
+    submitComponent: function submitComponent() {
       var _this = this;
 
-      if (this.id) {
-        axios.get("/clients/".concat(this.id)).then(function (r) {
-          _this.form = r.data.data;
-          _this.item = clone(r.data.data);
-          _this.form.created_date = new Date(r.data.data.created_mm_dd_yyyy);
-        })["catch"](function (e) {
-          _this.item = null;
-
-          _this.$buefy.toast.open({
-            message: "Error: ".concat(e.message),
-            type: 'is-danger',
-            queue: false
-          });
-        });
-      }
-    },
-    submit: function submit() {
-      var _this2 = this;
-
-      this.isLoading = true;
+      var deleteComponent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      this.transmissionActive = true;
       var method = 'post';
-      var url = '/clients/store';
+      var url = "/registration/product/".concat(this.productid, "/articleNr/").concat(this.articledata.articleNumber);
+      var data = {
+        component_article_nr: "".concat(this.componentarticledata.articleNumber),
+        component_serial_nr: "".concat(this.component_serial)
+      };
 
-      if (this.id) {
-        method = 'patch';
-        url = "/clients/".concat(this.id);
+      if (deleteComponent) {
+        method = 'delete'; // 'products/{id}/components/{componentId}
+
+        url = "/registration/product/".concat(this.productid, "/components/").concat(this.component_id);
       }
 
       axios({
         method: method,
         url: url,
-        data: this.form
+        data: data
       }).then(function (r) {
-        _this2.isLoading = false;
+        r = r.data.data;
+        console.log(r);
+        var infoMessage = "Component stored";
 
-        if (!_this2.id && r.data.data.id) {
-          _this2.$router.push({
-            name: 'clients.edit',
-            params: {
-              id: r.data.data.id
-            }
-          });
-
-          _this2.$buefy.snackbar.open({
-            message: 'Created',
-            queue: false
-          });
+        if (deleteComponent) {
+          infoMessage = "Component removed";
+          _this.component_id = null;
+          _this.component_serial = null;
         } else {
-          _this2.item = r.data.data;
+          _this.productUpdate(r.product_serial, r.product_id);
 
-          _this2.$buefy.snackbar.open({
-            message: 'Updated',
-            queue: false
-          });
+          _this.component_id = r.component_id;
         }
-      })["catch"](function (e) {
-        _this2.isLoading = false;
 
-        _this2.$buefy.toast.open({
-          message: "Error: ".concat(e.message),
+        _this.$buefy.snackbar.open({
+          message: infoMessage,
+          queue: false
+        });
+      })["catch"](function (err) {
+        _this.$buefy.toast.open({
+          message: "Error: ".concat(err.message),
           type: 'is-danger',
           queue: false
         });
+      })["finally"](function () {
+        _this.transmissionActive = false;
       });
     }
   },
   watch: {
-    serial: function serial() {
-      console.log(this.serial);
-      this.save_button_outlined = true; //      this.save_button_type = "is-light"
+    component_serial: function component_serial() {
+      if (!this.transmissionActive) // mutal exclusive sending
+        this.submitComponent(false);
     }
   }
 });
@@ -24910,25 +24916,17 @@ var render = function() {
                           _vm._v("Serial Nr")
                         ]),
                         _vm._v(" "),
-                        _c(
-                          "p",
-                          {
-                            staticClass: "subtitle is-5 has-text-grey-lighter"
-                          },
-                          [_vm._v(_vm._s(_vm.productSerial))]
-                        )
+                        _c("p", { class: _vm.product_info_class }, [
+                          _vm._v(_vm._s(_vm.productSerial))
+                        ])
                       ]),
                       _vm._v(" "),
                       _c("div", [
                         _c("p", { staticClass: "heading" }, [_vm._v("ID")]),
                         _vm._v(" "),
-                        _c(
-                          "p",
-                          {
-                            staticClass: "subtitle is-5 has-text-grey-lighter"
-                          },
-                          [_vm._v(_vm._s(_vm.productId))]
-                        )
+                        _c("p", { class: _vm.product_info_class }, [
+                          _vm._v(_vm._s(_vm.productId))
+                        ])
                       ])
                     ]),
                     _vm._v(" "),
@@ -24961,7 +24959,17 @@ var render = function() {
             return _c(
               "div",
               { key: item.name },
-              [_c("sub-component", { attrs: { componentdata: item } })],
+              [
+                _c("sub-component", {
+                  attrs: {
+                    componentarticledata: item,
+                    articledata: _vm.articleDetails,
+                    productid: _vm.productId,
+                    productserial: _vm.productSerial
+                  },
+                  on: { productUpdate: _vm.handleProductUpdate }
+                })
+              ],
               1
             )
           })
@@ -25009,9 +25017,9 @@ var render = function() {
               _c("h5", { staticClass: "title is-5" }, [
                 _vm._v(
                   "\n          " +
-                    _vm._s(_vm.componentdata.articleNumber) +
+                    _vm._s(_vm.componentarticledata.articleNumber) +
                     " - " +
-                    _vm._s(_vm.componentdata.name) +
+                    _vm._s(_vm.componentarticledata.name) +
                     "\n        "
                 )
               ])
@@ -25031,10 +25039,14 @@ var render = function() {
                   },
                   [
                     _c("b-input", {
-                      attrs: { value: _vm.serial, size: "is-medium" },
+                      attrs: {
+                        value: _vm.component_serial,
+                        size: "is-medium",
+                        disabled: _vm.component_id != null
+                      },
                       nativeOn: {
                         change: function($event) {
-                          _vm.serial = $event.target.value
+                          _vm.component_serial = $event.target.value
                         }
                       }
                     }),
@@ -25044,11 +25056,39 @@ var render = function() {
                       { staticClass: "control" },
                       [
                         _c("b-button", {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.component_id == null,
+                              expression: "component_id == null"
+                            }
+                          ],
                           attrs: {
-                            type: _vm.save_button_type,
+                            type: "is-success",
                             label: "Save",
-                            size: "is-medium",
-                            outlined: _vm.save_button_outlined
+                            size: "is-medium"
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("b-button", {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.component_id != null,
+                              expression: "component_id != null"
+                            }
+                          ],
+                          attrs: {
+                            type: "is-dark",
+                            label: "Delete",
+                            size: "is-medium"
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.submitComponent(true)
+                            }
                           }
                         })
                       ],
