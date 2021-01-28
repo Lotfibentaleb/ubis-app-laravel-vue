@@ -11,8 +11,8 @@
           <b-field label="Serial number" label-position="on-border">
             <b-input :value="component_serial" size="is-medium" @change.native="component_serial = $event.target.value" :disabled="component_id != null"/>
              <p class="control">
-                <b-button v-show="component_id == null" type="is-success" label="Save" size="is-medium"/>
-                <b-button v-show="component_id != null" @click="submitComponent(true)" type="is-dark" label="Delete" size="is-medium"/>
+                <b-button v-show="component_id == null" :disabled="transmissionActive" type="is-success" label="speichern" size="is-medium"/>
+                <b-button v-show="component_id != null" @click="submitComponent(true)" :disabled="transmissionActive" type="is-dark" label="löschen" size="is-medium"/>
             </p>
           </b-field>
         </div>

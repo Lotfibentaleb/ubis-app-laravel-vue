@@ -9,12 +9,14 @@ $default-padding: $size-base * 1.5;
 $family-sans-serif: "Nunito", sans-serif;
 
 /* Base color */
-$base-color: #2e323a;
-$base-color-light: rgba(24,28,33,0.06);
+$base-color: #58585A; // #2e323a
+$base-color-light: #759BAB; // rgba(24,28,33,0.06);
+
+$success: #68C27E;
 
 /* General overrides */
 $primary: $turquoise;
-$body-background-color: #f8f8f8;
+$body-background-color: #333C42; //f8f8f8;
 $link: $blue;
 $link-visited: $purple;
 $light-border: 1px solid $base-color-light;
@@ -61,7 +63,9 @@ $card-header-shadow: none;
 
 /* Card: specifics */
 $card-border: 1px solid $base-color-light;
-$card-header-border-bottom-color: $base-color-light;
+$card-header-border-bottom-color: $base-color;
+$card-header-background-color: $base-color-light;
+$card-header-color: $white;
 
 /* Table: Bulma override */
 $table-cell-border: 1px solid $white-bis;
@@ -103,3 +107,11 @@ $progress-bar-background-color: $grey-lighter;
 /* Icon: specifics */
 $icon-update-mark-size: $size-base * .5;
 $icon-update-mark-color: $yellow;
+
+body {
+  background-image: url("images/bg.png");
+  background-repeat: repeat;
+  background-color: #333C42;
+  background-size: auto;
+  min-height: 1000px;
+}

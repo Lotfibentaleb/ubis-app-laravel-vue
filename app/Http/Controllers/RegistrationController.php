@@ -130,7 +130,7 @@ class RegistrationController extends Controller
         ]);
 
         if($validator->fails()){
-            return response(['message' =>  'Append component failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
+            return response()->json(['message' =>  'Append component failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
         }
 
         /*{
@@ -165,7 +165,7 @@ class RegistrationController extends Controller
                         $statusMessage = (array_key_exists('error', $responseContent))?$responseContent['error']:$statusMessage;
                         $statusMessage = (array_key_exists('message', $responseContent))?$responseContent['message']:$statusMessage;
                 }
-                return response(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
+                return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
             }
             $productNewlyCreated = true;
             // success
@@ -181,7 +181,7 @@ class RegistrationController extends Controller
                         $statusMessage = (array_key_exists('error', $responseContent))?$responseContent['error']:$statusMessage;
                         $statusMessage = (array_key_exists('message', $responseContent))?$responseContent['message']:$statusMessage;
                 }
-                return response(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
+                return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
             }
             // success
         }
@@ -207,7 +207,7 @@ class RegistrationController extends Controller
                 // TODO: missing API to delete product
                 // $client->request('DELETE', $baseUrl.$requestString.'/', array_merge($options, ['json' => ['st_article_nr' => $articleNr]]));
             }
-            return response(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
+            return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
         }
         // success, we get back the product on component creation
         $product = json_decode((string)$response->getBody());
@@ -229,6 +229,56 @@ class RegistrationController extends Controller
             ]), $statusCode);
     }
 
+    /**
+     * Show product information
+     */
+    public function showProduct(Request $request, $id, $articleNr = null){
+        $requestData = array_merge($request->all(), ['product_id' => $id, 'product_article_nr' => $articleNr]);
+
+        $validator = Validator::make($requestData, [
+            'product_article_nr' => 'nullable|string|between:5,64',
+            'product_id' => 'nullable|string|between:1,64',    // if product id == - -> skip check
+        ]);
+
+        if($validator->fails()){
+            return response()->json(['message' =>  'Requesting product failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
+        }
+
+        $client = new GuzzleHttp\Client();
+        $baseUrl = env('PIS_SERVICE_BASE_URL2');
+        $options = [
+//            'debug' => fopen('php://stderr', 'w'),
+            'http_errors'=> false,
+            'headers' =>[
+            'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
+            'Accept'        => 'application/json',
+            'Content-Type' => 'application/json'
+            ]
+        ];
+
+        $product = null;
+        $requestString = 'products/'.$id;
+        if( $articleNr != null  ){
+            // article nr given, get product by serial
+            $requestString = 'products/'.$id.'/article_nr='.$articleNr;
+        }
+
+        $response = $client->request('GET', $baseUrl.$requestString, $options);
+
+        $statusCode = $response->getStatusCode();
+        if( $statusCode != 200){
+            $statusMessage = 'Could not fetch product.';
+            if( $response &&  !empty($response->getBody()) && !empty((string)$response->getBody())){
+                    $responseContent = json_decode((string)$response->getBody(), true);
+                    $statusMessage = (array_key_exists('error', $responseContent))?$responseContent['error']:$statusMessage;
+                    $statusMessage = (array_key_exists('message', $responseContent))?$responseContent['message']:$statusMessage;
+            }
+            return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
+        }
+
+        $body = json_decode((string)$response->getBody());
+        return response()->json($body, $statusCode);
+    }
 
     /**
      * Delete component by id
@@ -242,7 +292,7 @@ class RegistrationController extends Controller
         ]);
 
         if($validator->fails()){
-            return response(['message' =>  'Delete component failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
+            return response()->json(['message' =>  'Delete component failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
         }
 
         $client = new GuzzleHttp\Client();
@@ -268,8 +318,8 @@ class RegistrationController extends Controller
                     $statusMessage = (array_key_exists('error', $responseContent))?$responseContent['error']:$statusMessage;
                     $statusMessage = (array_key_exists('message', $responseContent))?$responseContent['message']:$statusMessage;
             }
-            return response(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
+            return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
         }
-        return response([], $statusCode);
+        return response()->json([], $statusCode);
     }
 }

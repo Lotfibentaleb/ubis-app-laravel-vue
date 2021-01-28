@@ -56,10 +56,11 @@ Route::get('/test/{id}', test::class);
 
 Route::prefix('/registration')->group(function () {
     Route::get('', 'RegistrationController@index');
-    Route::get('/articles', 'RegistrationController@articles');     // list several articles by name/art.nr.
-    Route::get('/articles/{id}', 'RegistrationController@article');  // get back details per article
+    Route::get('/articles', 'RegistrationController@articles');         // list several articles by name/art.nr.
+    Route::get('/articles/{id}', 'RegistrationController@article');     // get back details per article
+    Route::get('/product/{id}/articleNr/{articleNr?}', 'RegistrationController@showProduct');   // get back details per product
     Route::post('/product/{id}/articleNr/{articleNr?}', 'RegistrationController@createProduct');  // get back details per article
-    Route::delete('product/{id}/components/{componentId}', 'RegistrationController@deleteComponent');
+    Route::delete('/product/{id}/components/{componentId}', 'RegistrationController@deleteComponent');
 
 });
 

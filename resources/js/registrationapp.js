@@ -11,6 +11,7 @@ import router from './registrationrouter'
 /* Vue. Main component */
 import App from './RegistrationApp.vue'
 
+//import 'buefy/dist/buefy.css';
 
 Vue.config.productionTip = false
 

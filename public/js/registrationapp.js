@@ -1915,6 +1915,7 @@ module.exports = {
 //
 //
 //
+//
 // @ is an alias to /src
 
 /***/ }),
@@ -2307,6 +2308,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // @ is an alias to /src
 
 
@@ -2321,10 +2341,13 @@ __webpack_require__.r(__webpack_exports__);
       articleSelected: null,
       isFetchingArticleList: false,
       isFetchingArticleDetails: false,
-      articleDetails: [],
+      articleDetails: null,
+      productDetails: null,
       productSerial: '-',
       productId: '-',
-      product_info_class: 'subtitle is-5 has-text-grey-lighter'
+      product_info_class: 'subtitle is-5 has-text-grey-lighter',
+      productSearch: null,
+      transmissionActive: false
     };
   },
   name: 'home',
@@ -2346,34 +2369,55 @@ __webpack_require__.r(__webpack_exports__);
   },
   watch: {
     articleSelected: function articleSelected() {
+      this.fetchArticleDetails();
+    },
+    productSearch: function productSearch() {
       var _this = this;
 
-      this.articleDetails = [];
-      this.isFetchingArticleDetails = true;
-      axios.get("/registration/articles/".concat(this.articleSelected.articleNumber), {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Authorization, Content-Type, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Range"
+      this.productDetails = null;
+      this.transmissionActive = true;
+      var method = 'get';
+      var url = "/registration/product/".concat(this.productSearch, "/articleNr");
+
+      if (this.articleSelected) {
+        url = "/registration/product/".concat(this.productSearch, "/articleNr/").concat(this.articleSelected.articleNumber);
+      }
+
+      axios({
+        method: method,
+        url: url
+      }).then(function (r) {
+        _this.productDetails = r.data.data;
+        console.log(_this.productDetails);
+        var infoMessage = "Product found";
+
+        _this.handleProductUpdate(_this.productDetails.st_serial_nr, _this.productDetails.id);
+
+        _this.component_id = _this.productDetails.component_id;
+
+        _this.$buefy.snackbar.open({
+          message: infoMessage,
+          queue: false
+        });
+      })["catch"](function (err) {
+        var message = "Fehler: ".concat(err.message);
+
+        if (err.response.status == 404) {
+          message = "Fehler: Produkt konnte nicht gefunden werden.";
         }
-      }).then(function (result) {
-        console.log('Article details');
-        console.log(result.data.data);
-        _this.isFetchingArticleDetails = false;
-        _this.articleDetails = result.data.data;
-      })["catch"](function (error) {
-        if (error.request) {
-          console.log(error.request);
-        } else if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else {
-          console.log('Error', error.message);
-        }
+
+        _this.$buefy.toast.open({
+          message: message,
+          type: 'is-danger',
+          queue: false
+        });
       })["finally"](function () {
-        _this.isFetchingArticleDetails = false;
+        _this.transmissionActive = false;
+        _this.articleSelected = {
+          "articleNumber": _this.productDetails.st_article_nr
+        };
+
+        _this.fetchArticleDetails();
       });
     }
   },
@@ -2391,10 +2435,41 @@ __webpack_require__.r(__webpack_exports__);
       this.articleSelected = null;
       this.articleSelected = article;
     },
+    fetchArticleDetails: function fetchArticleDetails() {
+      var _this2 = this;
+
+      this.articleDetails = null;
+      this.isFetchingArticleDetails = true;
+      axios.get("/registration/articles/".concat(this.articleSelected.articleNumber), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Authorization, Content-Type, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Range"
+        }
+      }).then(function (result) {
+        console.log('Article details');
+        console.log(result.data.data);
+        _this2.isFetchingArticleDetails = false;
+        _this2.articleDetails = result.data.data;
+      })["catch"](function (error) {
+        if (error.request) {
+          console.log(error.request);
+        } else if (error.response) {
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else {
+          console.log('Error', error.message);
+        }
+      })["finally"](function () {
+        _this2.isFetchingArticleDetails = false;
+      });
+    },
     // You have to install and import debounce to use it,
     // it's not mandatory though.
     getAsyncArticleList: lodash_debounce__WEBPACK_IMPORTED_MODULE_4___default()(function (name) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (!name.length) {
         this.articleList = [];
@@ -2412,12 +2487,12 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (result) {
         console.log('Article list');
         console.log(result.data);
-        _this2.isFetchingArticleList = false;
-        _this2.articleList = [];
+        _this3.isFetchingArticleList = false;
+        _this3.articleList = [];
         result.data.data.forEach(function (item) {
-          return _this2.articleList.push(item);
+          return _this3.articleList.push(item);
         });
-        console.log(_this2.articleList);
+        console.log(_this3.articleList);
       })["catch"](function (error) {
         if (error.request) {
           /*
@@ -2439,7 +2514,7 @@ __webpack_require__.r(__webpack_exports__);
           console.log('Error', error.message);
         }
       })["finally"](function () {
-        _this2.isFetchingArticleList = false;
+        _this3.isFetchingArticleList = false;
       });
     }, 250)
   }
@@ -24819,8 +24894,10 @@ var render = function() {
     { staticClass: "container" },
     [
       _c("hero-bar", [
-        _vm._v("\n    UBIS - Product Registration\n    "),
-        _c("p", { staticClass: "subtitle" }, [_vm._v("Neues Produkt erzeugen")])
+        _vm._v("\n    UBIS - Produkt Registration\n    "),
+        _c("p", { staticClass: "subtitle" }, [
+          _vm._v("Neues Produkt erzeugen und Produkt Komponenten ändern")
+        ])
       ]),
       _vm._v(" "),
       _c(
@@ -24831,7 +24908,7 @@ var render = function() {
             "card-component",
             {
               staticClass: "has-mobile-sort-spaced",
-              attrs: { title: "Artikel", icon: "filter" }
+              attrs: { title: "Produkt", icon: "filter" }
             },
             [
               _c("b-autocomplete", {
@@ -24845,7 +24922,7 @@ var render = function() {
                 ],
                 attrs: {
                   data: _vm.articleList,
-                  placeholder: "e.g. 800000114B2",
+                  placeholder: "Nach ERP Artikelnummer suchen z.B. 800000114B2",
                   field: "title",
                   loading: _vm.isFetchingArticleList,
                   size: "is-medium"
@@ -24900,81 +24977,155 @@ var render = function() {
                 ])
               }),
               _vm._v(" "),
+              _c("br"),
+              _vm._v(" "),
+              _c(
+                "b-field",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.articleSelected == null,
+                      expression: "articleSelected == null"
+                    }
+                  ]
+                },
+                [
+                  _c("b-input", {
+                    staticClass: "is-expanded",
+                    attrs: {
+                      size: "is-medium",
+                      placeholder:
+                        "Nach Produkt ID suchen z.B. c54368a6-60cc-11eb-ae93-0242ac130002"
+                    },
+                    nativeOn: {
+                      change: function($event) {
+                        _vm.productSearch = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("b-button", {
+                    attrs: {
+                      disabled: _vm.transmissionActive,
+                      type: "is-success",
+                      label: "suchen",
+                      size: "is-medium"
+                    }
+                  })
+                ],
+                1
+              ),
+              _vm._v(" "),
               _vm.articleSelected != null
-                ? _c("div", [
-                    _c("p", { staticClass: "title" }, [
-                      _vm._v(
-                        _vm._s(_vm.articleSelected.articleNumber) +
-                          " - " +
-                          _vm._s(_vm.articleSelected.name)
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "level" }, [
-                      _c("div", [
-                        _c("p", { staticClass: "heading" }, [
-                          _vm._v("Serial Nr")
+                ? _c(
+                    "div",
+                    [
+                      _c("p", { staticClass: "title" }, [
+                        _vm._v(
+                          _vm._s(_vm.articleSelected.articleNumber) +
+                            " - " +
+                            _vm._s(_vm.articleSelected.name)
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "level" }, [
+                        _c("div", [
+                          _c("p", { staticClass: "heading" }, [
+                            _vm._v("Serial Nr")
+                          ]),
+                          _vm._v(" "),
+                          _c("p", { class: _vm.product_info_class }, [
+                            _vm._v(_vm._s(_vm.productSerial))
+                          ])
                         ]),
                         _vm._v(" "),
-                        _c("p", { class: _vm.product_info_class }, [
-                          _vm._v(_vm._s(_vm.productSerial))
+                        _c("div", [
+                          _c("p", { staticClass: "heading" }, [_vm._v("ID")]),
+                          _vm._v(" "),
+                          _c("p", { class: _vm.product_info_class }, [
+                            _vm._v(_vm._s(_vm.productId))
+                          ])
                         ])
                       ]),
                       _vm._v(" "),
-                      _c("div", [
-                        _c("p", { staticClass: "heading" }, [_vm._v("ID")]),
-                        _vm._v(" "),
-                        _c("p", { class: _vm.product_info_class }, [
-                          _vm._v(_vm._s(_vm.productId))
-                        ])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "buttons" },
-                      [
-                        _c(
-                          "b-button",
-                          {
+                      _c(
+                        "b-field",
+                        [
+                          _c("b-input", {
+                            staticClass: "is-expanded",
                             attrs: {
-                              type: "subtitle is-5 is-light",
-                              outlined: "",
-                              expanded: ""
+                              size: "is-medium",
+                              placeholder:
+                                "Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"
                             },
-                            on: { click: _vm.newProduct }
+                            nativeOn: {
+                              change: function($event) {
+                                _vm.productSearch = $event.target.value
+                              }
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("b-button", {
+                            attrs: {
+                              disabled: _vm.transmissionActive,
+                              type: "is-success",
+                              label: "suchen",
+                              size: "is-medium"
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          attrs: {
+                            type: "subtitle is-5 is-light has-text-grey",
+                            expanded: ""
                           },
-                          [_vm._v("Neues Produkt anlegen")]
-                        )
-                      ],
-                      1
-                    )
-                  ])
+                          on: { click: _vm.newProduct }
+                        },
+                        [_vm._v("Neues Produkt anlegen")]
+                      )
+                    ],
+                    1
+                  )
                 : _vm._e()
             ],
             1
           ),
           _vm._v(" "),
-          _vm._l(this.articleDetails.bom, function(item) {
-            return _c(
-              "div",
-              { key: item.name },
-              [
-                _c("sub-component", {
-                  attrs: {
-                    componentarticledata: item,
-                    articledata: _vm.articleDetails,
-                    productid: _vm.productId,
-                    productserial: _vm.productSerial
-                  },
-                  on: { productUpdate: _vm.handleProductUpdate }
-                })
-              ],
-              1
-            )
-          })
+          this.articleDetails != null
+            ? _c(
+                "div",
+                _vm._l(this.articleDetails.bom, function(item) {
+                  return _c(
+                    "div",
+                    { key: item.name },
+                    [
+                      _c("sub-component", {
+                        attrs: {
+                          componentarticledata: item,
+                          articledata: _vm.articleDetails,
+                          productid: _vm.productId,
+                          productserial: _vm.productSerial
+                        },
+                        on: { productUpdate: _vm.handleProductUpdate }
+                      }),
+                      _vm._v(" "),
+                      _c("br")
+                    ],
+                    1
+                  )
+                }),
+                0
+              )
+            : _vm._e()
         ],
-        2
+        1
       )
     ],
     1
@@ -25065,8 +25216,9 @@ var render = function() {
                             }
                           ],
                           attrs: {
+                            disabled: _vm.transmissionActive,
                             type: "is-success",
-                            label: "Save",
+                            label: "speichern",
                             size: "is-medium"
                           }
                         }),
@@ -25081,8 +25233,9 @@ var render = function() {
                             }
                           ],
                           attrs: {
+                            disabled: _vm.transmissionActive,
                             type: "is-dark",
-                            label: "Delete",
+                            label: "löschen",
                             size: "is-medium"
                           },
                           on: {
@@ -40857,6 +41010,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 /* Vue. Main component */
 
+ //import 'buefy/dist/buefy.css';
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.config.productionTip = false;
 /* Main component */
