@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class RegistrationController extends Controller
 {
-        /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -86,6 +86,10 @@ class RegistrationController extends Controller
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
         $bom = json_decode($body->data->bom);
+        if( empty($bom) ){
+            return response()->json(array('data' => $body->data), $statusCode);
+        }
+
         $articleData = array();
         foreach($bom as $key=>$value){
             /*

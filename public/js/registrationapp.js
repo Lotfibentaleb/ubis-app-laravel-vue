@@ -2328,6 +2328,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // @ is an alias to /src
 
 
@@ -25192,7 +25204,7 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          this.articleDetails != null
+          this.articleDetails != null && this.articleDetails.bom != null
             ? _c(
                 "div",
                 _vm._l(this.articleDetails.bom, function(item) {
@@ -25217,6 +25229,33 @@ var render = function() {
                   )
                 }),
                 0
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          this.articleDetails != null && this.articleDetails.bom == null
+            ? _c(
+                "div",
+                [
+                  _c(
+                    "card-component",
+                    {
+                      staticClass: "has-mobile-sort-spaced",
+                      attrs: { title: "Info", icon: "view-grid" }
+                    },
+                    [
+                      _c("div", { staticClass: "level" }, [
+                        _c("div", { staticClass: "level-left" }, [
+                          _c("h5", { staticClass: "title is-5" }, [
+                            _vm._v(
+                              "\n              Für diesen Artikel ist im ERP System keine Stückliste hinterlegt!\n            "
+                            )
+                          ])
+                        ])
+                      ])
+                    ]
+                  )
+                ],
+                1
               )
             : _vm._e()
         ],

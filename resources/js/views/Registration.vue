@@ -70,12 +70,24 @@
       </card-component>
 
       <!-- show all possible sub components -->
-      <div v-if="this.articleDetails != null">
-      <div  v-for="item in this.articleDetails.bom" :key="item.name">
-          <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articlenumber="articleDetails.articleNumber" :productid="productId" :componentserial="item.component_serial" :componentid="item.component_id"></sub-component>
-          <br/>
+      <div v-if="this.articleDetails != null && this.articleDetails.bom != null">
+        <div  v-for="item in this.articleDetails.bom" :key="item.name">
+            <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articlenumber="articleDetails.articleNumber" :productid="productId" :componentserial="item.component_serial" :componentid="item.component_id"></sub-component>
+            <br/>
+        </div>
       </div>
+      <div v-if="this.articleDetails != null && this.articleDetails.bom == null">
+        <card-component title="Info" class="has-mobile-sort-spaced" icon="view-grid">
+          <div class="level">
+            <div class="level-left">
+              <h5 class="title is-5">
+                Für diesen Artikel ist im ERP System keine Stückliste hinterlegt!
+              </h5>
+            </div>
+          </div>
+        </card-component>
       </div>
+
 
     </section>
   </div>
