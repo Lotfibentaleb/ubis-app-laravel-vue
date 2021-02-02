@@ -256,13 +256,19 @@ class RegistrationController extends Controller
             ]
         ];
 
+        $checkUUid = Validator::make(['id' => $id], [
+            'id' => 'required|uuid'
+        ]);
+
         $product = null;
         $requestString = 'products/'.$id;
-        if( $articleNr != null  ){
+        if( $articleNr != null && $checkUUid->fails() ){
             // article nr given, get product by serial
-            $requestString = 'products/'.$id.'/article_nr='.$articleNr;
+            $requestString = 'products/'.$id.'?article_nr='.$articleNr;
         }
 
+//        return $requestString;
+        //die(__FILE__);
         $response = $client->request('GET', $baseUrl.$requestString, $options);
 
         $statusCode = $response->getStatusCode();

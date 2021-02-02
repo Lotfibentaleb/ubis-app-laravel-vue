@@ -2327,6 +2327,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // @ is an alias to /src
 
 
@@ -2361,6 +2362,13 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     'server_data': function server_data() {
       return window.exdata;
+    },
+    'articleName': function articleName() {
+      if (this.articleDetails != null) {
+        return this.articleDetails.name;
+      }
+
+      return this.articleSelected.name;
     }
   },
   mounted: function mounted() {
@@ -2369,17 +2377,22 @@ __webpack_require__.r(__webpack_exports__);
   },
   watch: {
     articleSelected: function articleSelected() {
-      this.fetchArticleDetails();
+      if (!this.transmissionActive) {
+        this.fetchArticleDetails();
+      }
     },
     productSearch: function productSearch() {
       var _this = this;
 
-      this.productDetails = null;
+      if (this.transmissionActive) return; //      this.productDetails = null
+
       this.transmissionActive = true;
-      var method = 'get';
+      var method = 'get'; // plain product UUID search
+
       var url = "/registration/product/".concat(this.productSearch, "/articleNr");
 
       if (this.articleSelected) {
+        // article nr. + article serial search
         url = "/registration/product/".concat(this.productSearch, "/articleNr/").concat(this.articleSelected.articleNumber);
       }
 
@@ -2389,7 +2402,7 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (r) {
         _this.productDetails = r.data.data;
         console.log(_this.productDetails);
-        var infoMessage = "Product found";
+        var infoMessage = "Produkt mit der Ser.Nr./UUID '".concat(_this.productSearch, "' geladen");
 
         _this.handleProductUpdate(_this.productDetails.st_serial_nr, _this.productDetails.id);
 
@@ -2399,11 +2412,13 @@ __webpack_require__.r(__webpack_exports__);
           message: infoMessage,
           queue: false
         });
+
+        _this.productSearch = null;
       })["catch"](function (err) {
         var message = "Fehler: ".concat(err.message);
 
         if (err.response.status == 404) {
-          message = "Fehler: Produkt konnte nicht gefunden werden.";
+          message = "Fehler: Produkt mit der Ser.Nr./UUID '".concat(_this.productSearch, "' konnte nicht gefunden werden.");
         }
 
         _this.$buefy.toast.open({
@@ -2412,21 +2427,28 @@ __webpack_require__.r(__webpack_exports__);
           queue: false
         });
       })["finally"](function () {
-        _this.transmissionActive = false;
-        _this.articleSelected = {
-          "articleNumber": _this.productDetails.st_article_nr
-        };
+        // this will trigger fetching article details
+        if (_this.productDetails != null) {
+          _this.articleSelected = {
+            "articleNumber": _this.productDetails.st_article_nr
+          };
+          _this.transmissionActive = false;
 
-        _this.fetchArticleDetails();
+          _this.fetchArticleDetails();
+        } else {
+          _this.transmissionActive = false;
+        }
       });
     }
   },
   methods: {
-    handleProductUpdate: function handleProductUpdate(productId, productSerial) {
+    // reset local product selection by sub-component event
+    handleProductUpdate: function handleProductUpdate(productSerial, productId) {
       this.productSerial = productSerial;
       this.productId = productId;
       this.product_info_class = 'subtitle is-5 has-text-grey-darker';
     },
+    // reset all product values
     newProduct: function newProduct() {
       this.productSerial = '-';
       this.productId = '-'; // trigger reactivity @TODO: to avoid refetching, cleanup form
@@ -2435,9 +2457,26 @@ __webpack_require__.r(__webpack_exports__);
       this.articleSelected = null;
       this.articleSelected = article;
     },
+    grep: function grep(arr, callback) {
+      var newArr = [],
+          len = arr.length,
+          i;
+
+      for (i = 0; i < len; i++) {
+        var e = arr[i];
+
+        if (callback(e)) {
+          newArr.push(e);
+        }
+      }
+
+      return newArr;
+    },
+    // fetching article details to this.articleDetails
     fetchArticleDetails: function fetchArticleDetails() {
       var _this2 = this;
 
+      if (this.isFetchingArticleDetails) return;
       this.articleDetails = null;
       this.isFetchingArticleDetails = true;
       axios.get("/registration/articles/".concat(this.articleSelected.articleNumber), {
@@ -2449,9 +2488,33 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (result) {
         console.log('Article details');
-        console.log(result.data.data);
+        console.log(result.data);
         _this2.isFetchingArticleDetails = false;
         _this2.articleDetails = result.data.data;
+
+        if (_this2.productDetails) {
+          // set ID/Serial for given subcomponents
+          _this2.articleDetails.bom.forEach(function (component) {
+            var result = this.productDetails.components.find(function (currentValue, index, arr) {
+              return currentValue.st_article_nr === component.articleNumber;
+            });
+            console.log('Matching product details component:');
+            console.log(result);
+
+            if (result) {
+              // matching result -> add to articles bom array
+              this.productDetails.components = this.grep(this.productDetails.components, function (e) {
+                // remove assigned enty from product details bom, required if we have multiple subcomponents of some art.nr
+                return e.id != result.id;
+              });
+              component.component_id = result.id;
+              component.component_serial = result.serial_nr;
+            }
+          }, _this2);
+
+          console.log('Extended article details BOM:');
+          console.log(_this2.articleDetails.bom);
+        }
       })["catch"](function (error) {
         if (error.request) {
           console.log(error.request);
@@ -2466,8 +2529,7 @@ __webpack_require__.r(__webpack_exports__);
         _this2.isFetchingArticleDetails = false;
       });
     },
-    // You have to install and import debounce to use it,
-    // it's not mandatory though.
+    // fetching articles for article search
     getAsyncArticleList: lodash_debounce__WEBPACK_IMPORTED_MODULE_4___default()(function (name) {
       var _this3 = this;
 
@@ -2492,20 +2554,13 @@ __webpack_require__.r(__webpack_exports__);
         result.data.data.forEach(function (item) {
           return _this3.articleList.push(item);
         });
-        console.log(_this3.articleList);
       })["catch"](function (error) {
         if (error.request) {
-          /*
-          * The request was made but no response was received, `error.request`
-          * is an instance of XMLHttpRequest in the browser and an instance
-          * of http.ClientRequest in Node.js
-          */
+          // The request was made but no response was received, `error.request` is an instance of XMLHttpRequest in the browser and an instance
+          // of http.ClientRequest in Node.js
           console.log(error.request);
         } else if (error.response) {
-          /*
-          * The request was made and the server responded with a
-          * status code that falls out of the range of 2xx
-          */
+          // The request was made and the server responded with a status code that falls out of the range of 2xx
           console.log(error.response.data);
           console.log(error.response.status);
           console.log(error.response.headers);
@@ -2569,36 +2624,47 @@ __webpack_require__.r(__webpack_exports__);
       type: Object,
       required: true
     },
-    articledata: {
-      type: Object,
+    // display components name/art.nr.
+    articlenumber: {
       required: true
     },
+    // article number of parent article
     productid: {
       "default": null
     },
-    productserial: {
+    // ID of parent product, if given
+    componentserial: {
       "default": null
     },
-    component_serial: {
+    // this components serial nr.
+    componentid: {
       "default": null
-    },
-    component_id: {
-      "default": null
-    }
+    } // this components id
+
   },
   data: function data() {
     return {
-      transmissionActive: false //      component_serial: null,
-      //      component_id: null
-
+      transmissionActive: false,
+      component_serial: null,
+      component_id: null,
+      initialUpdate: false
     };
   },
   computed: {},
-  created: function created() {},
+  created: function created() {
+    console.log('Sub created');
+
+    if (this.componentid != null) {
+      this.initialUpdate = true; // we gor some valid parent product
+
+      this.component_serial = this.componentserial;
+      this.component_id = this.componentid;
+    }
+  },
   methods: {
     // Emit product and serial nr to parent on creation
     productUpdate: function productUpdate(productSerial, productId) {
-      this.$emit('productUpdate', productId, productSerial);
+      this.$emit('productUpdate', productSerial, productId);
     },
     submitComponent: function submitComponent() {
       var _this = this;
@@ -2606,7 +2672,7 @@ __webpack_require__.r(__webpack_exports__);
       var deleteComponent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       this.transmissionActive = true;
       var method = 'post';
-      var url = "/registration/product/".concat(this.productid, "/articleNr/").concat(this.articledata.articleNumber);
+      var url = "/registration/product/".concat(this.productid, "/articleNr/").concat(this.articlenumber);
       var data = {
         component_article_nr: "".concat(this.componentarticledata.articleNumber),
         component_serial_nr: "".concat(this.component_serial)
@@ -2625,14 +2691,22 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (r) {
         r = r.data.data;
         console.log(r);
-        var infoMessage = "Component stored";
+        var infoMessage = "Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' gespeichert");
 
         if (deleteComponent) {
-          infoMessage = "Component removed";
+          // delete handling
+          infoMessage = "Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' gel\xF6scht");
           _this.component_id = null;
           _this.component_serial = null;
         } else {
-          _this.productUpdate(r.product_serial, r.product_id);
+          // add handling
+          if (_this.productid == '-' || _this.productid == null) {
+            // if first component is stored, a new product is implicite created, so we have to publish its ID/Serial to our parent
+            _this.productid = r.product_id;
+
+            _this.productUpdate(r.product_serial, r.product_id);
+          } // componente_serial still valid from input
+
 
           _this.component_id = r.component_id;
         }
@@ -2642,8 +2716,20 @@ __webpack_require__.r(__webpack_exports__);
           queue: false
         });
       })["catch"](function (err) {
+        var message = "Fehler: ".concat(err.message);
+
+        if (err.response.status == 409) {
+          message = "Fehler: Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' kann nicht angelegt werden. M\xF6glicherweise existiert bereits eine Komponente mit der identischen Serien Nr.");
+        }
+
+        if (err.response.status == 422) {
+          message = "Fehler: Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' kann nicht angelegt werden. Die Serien Nr. ist leer oder ung\xFCltig.");
+        }
+
+        _this.component_serial = null;
+
         _this.$buefy.toast.open({
-          message: "Error: ".concat(err.message),
+          message: message,
           type: 'is-danger',
           queue: false
         });
@@ -2653,9 +2739,16 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   watch: {
-    component_serial: function component_serial() {
-      if (!this.transmissionActive) // mutal exclusive sending
+    component_serial: function component_serial(newValue, oldValue) {
+      console.log('Sub component_serial watch triggered');
+      console.log('Value was changed from ' + oldValue + ' to ' + newValue);
+
+      if (this.transmissionActive != true && this.initialUpdate == false) {
+        // mutal exclusive sending
         this.submitComponent(false);
+      }
+
+      this.initialUpdate = false;
     }
   }
 });
@@ -25026,7 +25119,7 @@ var render = function() {
                         _vm._v(
                           _vm._s(_vm.articleSelected.articleNumber) +
                             " - " +
-                            _vm._s(_vm.articleSelected.name)
+                            _vm._s(_vm.articleName)
                         )
                       ]),
                       _vm._v(" "),
@@ -25057,6 +25150,7 @@ var render = function() {
                             staticClass: "is-expanded",
                             attrs: {
                               size: "is-medium",
+                              value: _vm.productSearch,
                               placeholder:
                                 "Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"
                             },
@@ -25109,9 +25203,10 @@ var render = function() {
                       _c("sub-component", {
                         attrs: {
                           componentarticledata: item,
-                          articledata: _vm.articleDetails,
+                          articlenumber: _vm.articleDetails.articleNumber,
                           productid: _vm.productId,
-                          productserial: _vm.productSerial
+                          componentserial: item.component_serial,
+                          componentid: item.component_id
                         },
                         on: { productUpdate: _vm.handleProductUpdate }
                       }),

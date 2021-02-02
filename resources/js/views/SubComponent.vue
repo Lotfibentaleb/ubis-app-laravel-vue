@@ -29,33 +29,40 @@ export default {
   components: { CardComponent },
   props: {
     id: { default: null },
-    componentarticledata: { type: Object, required: true },
-    articledata: { type: Object, required: true },
-    productid: { default: null },
-    productserial: { default: null },
-    component_serial:{ default: null },
-    component_id:{ default: null }
+    componentarticledata: { type: Object, required: true }, // display components name/art.nr.
+    articlenumber: { required: true },    // article number of parent article
+    productid: { default: null },         // ID of parent product, if given
+    componentserial:{ default: null },    // this components serial nr.
+    componentid:{ default: null }         // this components id
   },
   data () {
     return {
       transmissionActive: false,
-//      component_serial: null,
-//      component_id: null
+      component_serial: null,
+      component_id: null,
+      initialUpdate: false
     }
   },
   computed: {
   },
   created () {
+      console.log('Sub created');
+      if( this.componentid != null ){
+        this.initialUpdate = true
+        // we gor some valid parent product
+        this.component_serial = this.componentserial
+        this.component_id = this.componentid
+      }
   },
   methods: {
     // Emit product and serial nr to parent on creation
     productUpdate: function(productSerial, productId) {
-      this.$emit('productUpdate', productId, productSerial)
+      this.$emit('productUpdate', productSerial, productId)
     },
     submitComponent: function(deleteComponent = false) {
       this.transmissionActive = true
       let method = 'post'
-      let url = `/registration/product/${this.productid}/articleNr/${this.articledata.articleNumber}`
+      let url = `/registration/product/${this.productid}/articleNr/${this.articlenumber}`
       let data = {
         component_article_nr: `${this.componentarticledata.articleNumber}`,
         component_serial_nr: `${this.component_serial}`,
@@ -73,13 +80,20 @@ export default {
       }).then( r => {
         r = r.data.data
         console.log(r)
-        let infoMessage = `Component stored`
+        let infoMessage = `Komponente mit der Ser.Nr. '${this.component_serial}' gespeichert`
         if( deleteComponent ){
-          infoMessage = `Component removed`
+          // delete handling
+          infoMessage = `Komponente mit der Ser.Nr. '${this.component_serial}' gelöscht`
           this.component_id = null
           this.component_serial = null
         }else{
-          this.productUpdate(r.product_serial, r.product_id)
+          // add handling
+          if( this.productid == '-' || this.productid == null){
+            // if first component is stored, a new product is implicite created, so we have to publish its ID/Serial to our parent
+            this.productid = r.product_id
+            this.productUpdate(r.product_serial, r.product_id)
+          }
+          // componente_serial still valid from input
           this.component_id = r.component_id
         }
         this.$buefy.snackbar.open({
@@ -87,8 +101,18 @@ export default {
           queue: false
         })
       }).catch( err => {
+
+        let message = `Fehler: ${err.message}`
+        if( err.response.status == 409){
+            message = `Fehler: Komponente mit der Ser.Nr. '${this.component_serial}' kann nicht angelegt werden. Möglicherweise existiert bereits eine Komponente mit der identischen Serien Nr.`
+        }
+        if( err.response.status == 422){
+            message = `Fehler: Komponente mit der Ser.Nr. '${this.component_serial}' kann nicht angelegt werden. Die Serien Nr. ist leer oder ungültig.`
+        }
+        this.component_serial = null
         this.$buefy.toast.open({
-          message: `Error: ${err.message}`,
+          message: message,
+
           type: 'is-danger',
           queue: false
         })
@@ -98,9 +122,13 @@ export default {
     }
   },
   watch: {
-    component_serial : function() {
-      if( !this.transmissionActive )  // mutal exclusive sending
+    component_serial : function(newValue, oldValue) {
+      console.log('Sub component_serial watch triggered');
+      console.log('Value was changed from ' + oldValue + ' to ' + newValue )
+      if( this.transmissionActive != true && this.initialUpdate == false){  // mutal exclusive sending
         this.submitComponent(false);
+      }
+      this.initialUpdate = false;
     }
   }
 }

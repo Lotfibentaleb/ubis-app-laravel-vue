@@ -45,7 +45,7 @@
         </b-field>
 
         <div v-if="articleSelected != null">
-          <p class="title" >{{ articleSelected.articleNumber }} - {{ articleSelected.name }}</p>
+          <p class="title" >{{ articleSelected.articleNumber }} - {{ articleName }}</p>
           <div class="level">
             <div>
               <p class="heading">Serial Nr</p>
@@ -60,6 +60,7 @@
               <b-input
               class="is-expanded"
               size="is-medium"
+              :value="productSearch"
               @change.native="productSearch = $event.target.value"
               placeholder="Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"/>
               <b-button :disabled="transmissionActive" type="is-success" label="suchen" size="is-medium"/>
@@ -71,7 +72,7 @@
       <!-- show all possible sub components -->
       <div v-if="this.articleDetails != null">
       <div  v-for="item in this.articleDetails.bom" :key="item.name">
-          <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articledata="articleDetails" :productid="productId" :productserial="productSerial"></sub-component>
+          <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articlenumber="articleDetails.articleNumber" :productid="productId" :componentserial="item.component_serial" :componentid="item.component_id"></sub-component>
           <br/>
       </div>
       </div>
@@ -122,6 +123,12 @@ export default {
     'server_data': function(){
       return window.exdata;
     },
+    'articleName': function(){
+      if( this.articleDetails != null ){
+        return this.articleDetails.name
+      }
+      return this.articleSelected.name
+    }
   },
   mounted () {
     console.log('Inside mounted');
@@ -129,14 +136,19 @@ export default {
   },
   watch: {
     articleSelected: function(){
-      this.fetchArticleDetails();
+      if( !this.transmissionActive ){
+        this.fetchArticleDetails();
+      }
     },
     productSearch: function(){
-      this.productDetails = null
+      if( this.transmissionActive ) return;
+//      this.productDetails = null
       this.transmissionActive = true
       let method = 'get'
+      // plain product UUID search
       let url = `/registration/product/${this.productSearch}/articleNr`
       if( this.articleSelected ){
+        // article nr. + article serial search
         url = `/registration/product/${this.productSearch}/articleNr/${this.articleSelected.articleNumber}`
       }
 
@@ -146,17 +158,18 @@ export default {
       }).then( r => {
         this.productDetails = r.data.data
         console.log(this.productDetails)
-        let infoMessage = `Product found`
+        let infoMessage = `Produkt mit der Ser.Nr./UUID '${this.productSearch}' geladen`
         this.handleProductUpdate(this.productDetails.st_serial_nr, this.productDetails.id)
         this.component_id = this.productDetails.component_id
         this.$buefy.snackbar.open({
           message: infoMessage,
           queue: false
         })
+        this.productSearch = null
       }).catch( err => {
         let message = `Fehler: ${err.message}`
         if( err.response.status == 404){
-            message = `Fehler: Produkt konnte nicht gefunden werden.`
+            message = `Fehler: Produkt mit der Ser.Nr./UUID '${this.productSearch}' konnte nicht gefunden werden.`
         }
         this.$buefy.toast.open({
           message: message,
@@ -164,30 +177,51 @@ export default {
           queue: false
         })
       }).finally(() => {
-        this.transmissionActive = false
-        this.articleSelected = {
-          "articleNumber" : this.productDetails.st_article_nr
+        // this will trigger fetching article details
+        if( this.productDetails != null ){
+          this.articleSelected = {
+            "articleNumber" : this.productDetails.st_article_nr
+          }
+          this.transmissionActive = false
+          this.fetchArticleDetails();
+        }else{
+          this.transmissionActive = false
         }
-        this.fetchArticleDetails();
       })
     }
   },
   methods: {
-    handleProductUpdate: function(productId, productSerial){
+    // reset local product selection by sub-component event
+    handleProductUpdate: function(productSerial, productId ){
       this.productSerial = productSerial
       this.productId = productId
       this.product_info_class = 'subtitle is-5 has-text-grey-darker'
     },
+    // reset all product values
     newProduct () {
           this.productSerial = '-'
           this.productId = '-'
+
           // trigger reactivity @TODO: to avoid refetching, cleanup form
           let article = this.articleSelected
           this.articleSelected = null
           this.articleSelected = article
-
     },
+    grep(arr, callback) {
+            var newArr = [],
+                len = arr.length,
+                i;
+            for (i = 0; i < len; i++) {
+                var e = arr[i];
+                if (callback(e)) {
+                    newArr.push(e);
+                }
+            }
+            return newArr;
+        },
+    // fetching article details to this.articleDetails
     fetchArticleDetails(){
+      if( this.isFetchingArticleDetails ) return;
       this.articleDetails = null
       this.isFetchingArticleDetails = true
       axios.get(`/registration/articles/${this.articleSelected.articleNumber}`, {
@@ -200,9 +234,31 @@ export default {
           })
           .then( result => {
             console.log('Article details');
-            console.log(result.data.data)
+            console.log(result.data)
             this.isFetchingArticleDetails = false
             this.articleDetails = result.data.data
+            if( this.productDetails ){
+              // set ID/Serial for given subcomponents
+              this.articleDetails.bom.forEach(function(component){
+                  let result = this.productDetails.components.find( function(currentValue, index, arr){
+                    return currentValue.st_article_nr === component.articleNumber
+                  });
+                  console.log('Matching product details component:')
+                  console.log(result)
+                  if ( result ){
+                    // matching result -> add to articles bom array
+                    this.productDetails.components = this.grep(this.productDetails.components, function(e){
+                      // remove assigned enty from product details bom, required if we have multiple subcomponents of some art.nr
+                      return e.id != result.id
+
+                    })
+                    component.component_id = result.id
+                    component.component_serial = result.serial_nr
+                  }
+              }, this)
+              console.log('Extended article details BOM:')
+              console.log(this.articleDetails.bom)
+            }
           })
           .catch( error => {
             if (error.request) {
@@ -220,8 +276,7 @@ export default {
             this.isFetchingArticleDetails = false
           })
     },
-    // You have to install and import debounce to use it,
-    // it's not mandatory though.
+    // fetching articles for article search
     getAsyncArticleList: debounce(function (name) {
         if (!name.length) {
             this.articleList = []
@@ -244,21 +299,14 @@ export default {
             this.isFetchingArticleList = false
             this.articleList = []
             result.data.data.forEach((item) => this.articleList.push(item))
-            console.log(this.articleList)
           })
           .catch( error => {
             if (error.request) {
-              /*
-              * The request was made but no response was received, `error.request`
-              * is an instance of XMLHttpRequest in the browser and an instance
-              * of http.ClientRequest in Node.js
-              */
+              // The request was made but no response was received, `error.request` is an instance of XMLHttpRequest in the browser and an instance
+              // of http.ClientRequest in Node.js
               console.log(error.request);
             }else  if (error.response) {
-              /*
-              * The request was made and the server responded with a
-              * status code that falls out of the range of 2xx
-              */
+              // The request was made and the server responded with a status code that falls out of the range of 2xx
               console.log(error.response.data);
               console.log(error.response.status);
               console.log(error.response.headers);
