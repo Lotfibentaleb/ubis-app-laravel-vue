@@ -85,7 +85,10 @@ class RegistrationController extends Controller
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
-        $bom = json_decode($body->data->bom);
+        $bom = null;
+        if( \property_exists($body, 'data') && \property_exists($body->data, 'bom')){
+            $bom = json_decode($body->data->bom);
+        }
         if( empty($bom) ){
             return response()->json(array('data' => $body->data), $statusCode);
         }
