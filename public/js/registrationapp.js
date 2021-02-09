@@ -2731,7 +2731,7 @@ __webpack_require__.r(__webpack_exports__);
         var message = "Fehler: ".concat(err.message);
 
         if (err.response.status == 409) {
-          message = "Fehler: Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' kann nicht angelegt werden. M\xF6glicherweise existiert bereits eine Komponente mit der identischen Serien Nr.");
+          message = "Fehler: Komponente mit der Ser.Nr. '".concat(_this.component_serial, "' kann nicht angelegt werden. M\xF6glicherweise existiert bereits eine Komponente mit der identischen Serien Nr. oder es existiert ein Hauptprodukt mit einer nicht numerischen Serien Nr.");
         }
 
         if (err.response.status == 422) {

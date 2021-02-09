@@ -77,49 +77,43 @@ class RegistrationController extends Controller
             ]
         ];
 
+//        print_r(array($baseUrl.$requestString));
+//        die(__FILE__);
 
-        //$request = $client->createRequest('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
-        //print_r(array($baseUrl.$requestString));
-
-        //$response = $client->request('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
-        $bom = null;
-        if( \property_exists($body, 'data') && \property_exists($body->data, 'bom')){
-            $bom = json_decode($body->data->bom);
-        }
-        if( empty($bom) ){
-            return response()->json(array('data' => $body->data), $statusCode);
-        }
 
-        $articleData = array();
-        foreach($bom as $key=>$value){
-            /*
-             {
-            "id": 48798,
-            "version": 0,
-            "quantity": 1,
-            "articleId": 46793,
-            "createDate": "2019-10-16 15:16:51.288",
-            "articleNumber": "10000214A1",
-            "positionNumber": 1,
-            "lastModifiedDate": "2019-10-16 15:16:51.288"
-            },
-            */
-            for($quantity=0; $quantity<$value->quantity; $quantity++){
-                $requestString = 'articles/'.$value->articleNumber;
-                $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
-                $articleData[] = json_decode($response->getBody()->getContents())->data;
+        if( \property_exists($body, 'data') ){
+            $articleData = array();
+            if( \property_exists($body->data, 'bom') ){
+                $bom = json_decode($body->data->bom);
+                $bom = (is_array($bom))?$bom:array();  // prepare $bom for foreach()
+                foreach($bom as $key=>$value){
+                    /*
+                     {
+                    "id": 48798,
+                    "version": 0,
+                    "quantity": 1,
+                    "articleId": 46793,
+                    "createDate": "2019-10-16 15:16:51.288",
+                    "articleNumber": "10000214A1",
+                    "positionNumber": 1,
+                    "lastModifiedDate": "2019-10-16 15:16:51.288"
+                    },
+                    */
+                    for($quantity=0; $quantity<$value->quantity; $quantity++){
+                        $requestString = 'articles/'.$value->articleNumber;
+                        $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
+                        $articleData[] = json_decode($response->getBody()->getContents())->data;
+                    }
+                };
             }
-        };
-        $body->data->bom = $articleData;
-
-//        echo '<pre>';
-//        print_r(array($baseUrl.$requestString, $statusCode, $body));
-//        die(__FILE__);
-
-        return response()->json(array('data' => $body->data), $statusCode);
+            $body->data->bom = $articleData;    // assigne reworked reworked BOM, or empty array to response
+            return response()->json(array('data' => $body->data), $statusCode);
+        }else{
+            return response()->json(array('data' => $body), $statusCode);   // could not find data section, return body as given
+        }
     }
 
     /**
@@ -268,14 +262,12 @@ class RegistrationController extends Controller
         ]);
 
         $product = null;
-        $requestString = 'products/'.$id;
+        $requestString = 'products/'.$id.($request->input('lookup_subcomponents', false)?'?lookup_subcomponents='.$request['lookup_subcomponents']:'');
         if( $articleNr != null && $checkUUid->fails() ){
             // article nr given, get product by serial
-            $requestString = 'products/'.$id.'?article_nr='.$articleNr;
+            $requestString = 'products/'.urlencode($id).'?article_nr='.$articleNr.($request->input('lookup_subcomponents', false)?'&lookup_subcomponents='.$request['lookup_subcomponents']:'');
         }
 
-//        return $requestString;
-        //die(__FILE__);
         $response = $client->request('GET', $baseUrl.$requestString, $options);
 
         $statusCode = $response->getStatusCode();

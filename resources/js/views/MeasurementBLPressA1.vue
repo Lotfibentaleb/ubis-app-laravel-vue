@@ -1,37 +1,40 @@
 <template>
-  <section>
-    <card-component title="Komponente" class="has-mobile-sort-spaced" icon="view-grid">
+
       <div class="level">
         <div class="level-left">
           <h5 class="title is-5">
-            {{componentarticledata.articleNumber}} - {{componentarticledata.name}}
+            Backlight Press
           </h5>
         </div>
         <div class="level-right">
           <b-field label="Serial number" label-position="on-border">
+<!--
             <b-input :value="component_serial" size="is-medium" @change.native="component_serial = $event.target.value" :disabled="component_id != null"/>
              <p class="control">
                 <b-button v-show="component_id == null" :disabled="transmissionActive" type="is-success" label="speichern" size="is-medium"/>
                 <b-button v-show="component_id != null" @click="submitComponent(true)" :disabled="transmissionActive" type="is-dark" label="löschen" size="is-medium"/>
             </p>
+-->
           </b-field>
         </div>
       </div>
-    </card-component>
-    </section>
+
 </template>
 
 <script>
 import CardComponent from '@/components/CardComponent'
 
 export default {
-  name: 'SubComponent',
+  name: 'MeasurementBLPressA1',
   components: { CardComponent },
   props: {
-    id: { default: null },
-    componentarticledata: { type: Object, required: true }, // display components name/art.nr.
-    articlenumber: { required: true },    // article number of parent article
+    dataentryid: { required: true },
+    dataentrystepname: { required: true },
     productid: { default: null },         // ID of parent product, if given
+    productioninformation: { type: Object},
+
+    componentarticledata: { type: Object}, // display components name/art.nr.
+    articlenumber: { default: null },    // article number of parent article
     componentserial:{ default: null },    // this components serial nr.
     componentid:{ default: null }         // this components id
   },
@@ -46,7 +49,7 @@ export default {
   computed: {
   },
   created () {
-      console.log('Sub created');
+      console.log('Measurement created');
       if( this.componentid != null ){
         this.initialUpdate = true
         // we gor some valid parent product

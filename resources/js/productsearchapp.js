@@ -21,6 +21,8 @@ Vue.component('ProductSearchApp', App)
 /* Buefy */
 Vue.use(Buefy)
 
+Vue.use(require('vue-moment'));
+
 /* This is main entry point */
 
 new Vue({

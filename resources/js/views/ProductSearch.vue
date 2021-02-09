@@ -16,7 +16,6 @@
             v-show="articleSelected == null"
             size="is-medium"
             >
-
             <template slot-scope="props">
                 <div class="media">
                   <!--
@@ -46,37 +45,111 @@
 
         <div v-if="articleSelected != null">
           <p class="title" >{{ articleSelected.articleNumber }} - {{ articleName }}</p>
-          <div class="level">
-            <div>
-              <p class="heading">Serial Nr</p>
-              <p v-bind:class="product_info_class">{{productSerial}}</p>
-            </div>
-            <div>
-              <p class="heading">ID</p>
-              <p v-bind:class="product_info_class">{{productId}}</p>
-            </div>
-          </div>
           <b-field>
               <b-input
               class="is-expanded"
               size="is-medium"
               :value="productSearch"
               @change.native="productSearch = $event.target.value"
-              placeholder="Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"/>
+              placeholder="Nach Produkt oder Komponenten -Seriennummer (z.B. 100004) oder -ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"/>
               <b-button :disabled="transmissionActive" type="is-success" label="suchen" size="is-medium"/>
           </b-field>
-          <b-button @click="newProduct" type="subtitle is-5 is-light has-text-grey"  expanded>Neues Produkt anlegen</b-button>
+          <div class="level">
+            <div>
+              <p class="heading">Serial Nr</p>
+              <p class="subtitle is-5 has-text-grey-darker">{{productSerial}}</p>
+            </div>
+            <div>
+              <p class="heading has-text-right">ID</p>
+              <p class="subtitle is-5 has-text-grey-darker has-text-righ">{{productId}}</p>
+            </div>
+          </div>
+
+          <div v-if="productDetails != null">
+          <div class="level">
+            <div>
+              <p class="heading">Anlage Datum</p>
+              <p class="subtitle is-5 has-text-grey-darker">{{productDetails.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+            </div>
+            <div>
+              <p class="heading has-text-right">Produktions Status</p>
+              <!-- https://buefy.org/documentation/steps -->
+              <p class="subtitle is-5 has-text-grey-darker has-text-righ">{{productDetails.lifecycle}}</p>
+            </div>
+          </div>
+          </div>
+
         </div>
       </card-component>
 
+      <div v-if="productDetails != null">
+        <card-component title="Produkt Komponenten" class="has-mobile-sort-spaced" icon="view-comfy">
+
+          <div  v-for="item in this.productDetails.components" :key="item.id">
+            <div class="level">
+              <div>
+                {{item.st_article_nr}} - {{item.st_article_name}}
+              </div>
+              <div>
+                {{item.serial_nr}}
+              </div>
+              <div>
+                {{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}
+              </div>
+            </div>
+          </div>
+
+        </card-component>
+      </div>
+
+      <div v-if="productDetails != null">
+        <div  v-for="(item, index) in this.productDetails.production_dataset" :key="item.id">
+
+          <br/>
+          <card-component :title="'Produktions-Abschnitt: ' +index" class="has-mobile-sort-spaced" icon="progress-wrench">
+            <div class="level">
+              <div>
+                <p class="heading">Erstellt am</p>
+                <p class="subtitle is-5 has-text-grey-darker">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+              </div>
+              <div>
+                <p class="heading">Status</p>
+                <p class="subtitle is-5 has-text-grey-darker">{{item.state}}</p>
+              </div>
+            </div>
+            <div class="level">
+                <p class="heading">Info</p>
+                <p class="subtitle is-5 has-text-grey-darker">{{item.note}}</p>
+            </div>
+            <measurement-daisy-a-1 :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1>
+            <measurement-bl-press-a-1 :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-bl-press-a-1>
+<!--            <div class="level">
+
+             <b-table :data="Object.entries(item.data).map(([key, value]) => key=value )" :columns="columns"></b-table>
+
+              <b-table :data="Array.from(Object.entries(item.data))" :columns="columns"></b-table>
+
+              <b-table :data="Array.from(Object.keys(item.data), k=>[`${k}`, item.data[k]])" :columns="columns"></b-table>
+              <b-table :data="Array.from(new Map(Object.entries(item.data)))" :columns="columns"></b-table>
+
+
+            </div>
+-->
+          </card-component>
+
+        </div>
+      </div>
+
+
       <!-- show all possible sub components -->
+<!--
       <div v-if="this.articleDetails != null">
       <div  v-for="item in this.articleDetails.bom" :key="item.name">
           <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articlenumber="articleDetails.articleNumber" :productid="productId" :componentserial="item.component_serial" :componentid="item.component_id"></sub-component>
           <br/>
       </div>
       </div>
-
+-->
     </section>
   </div>
 </template>
@@ -91,6 +164,8 @@ import CardWidget from '@/components/CardWidget'
 import CardComponent from '@/components/CardComponent'
 import debounce from 'lodash/debounce'
 import SubComponent from './SubComponent.vue'
+import MeasurementDaisyA1 from './MeasurementDaisyA1.vue'
+import MeasurementBLPressA1 from './MeasurementBLPressA1.vue'
 
 
 
@@ -105,9 +180,41 @@ export default {
           productDetails: null,
           productSerial: '-',
           productId: '-',
-          product_info_class: 'subtitle is-5 has-text-grey-lighter',
           productSearch: null,
-          transmissionActive: false
+          transmissionActive: false,
+          columns: [
+                    {
+                        field: 'clean_glass',
+                        label: 'Glas sauber',
+                        centered: true
+                    },
+                    {
+                        field: 'time_start',
+                        label: 'Presse start',
+                        centered: true
+                    },
+                    {
+                        field: 'time_end',
+                        label: 'Presse end',
+                        centered: true
+                    },
+                    {
+                        field: 'vacuum_FPC',
+                        label: 'Vakuum FPC',
+                        numeric: true
+                    },
+                    {
+                        field: 'vacuum_LCD',
+                        label: 'Vakuum LCD',
+                        numeric: true
+                    },
+                    {
+                        field: 'vacuum_backlight',
+                        label: 'Vakuum Backlight',
+                        numeric: true
+                    },
+
+          ]
       }
   },
 
@@ -117,7 +224,9 @@ export default {
     CardWidget,
     Tiles,
     HeroBar,
-    SubComponent
+    SubComponent,
+    MeasurementDaisyA1,
+    MeasurementBLPressA1
   },
   computed: {
     'server_data': function(){
@@ -128,7 +237,7 @@ export default {
         return this.articleDetails.name
       }
       return this.articleSelected.name
-    }
+    },
   },
   mounted () {
     console.log('Inside mounted');
@@ -145,13 +254,14 @@ export default {
 //      this.productDetails = null
       this.transmissionActive = true
       let method = 'get'
+      let searchString = encodeURIComponent(this.productSearch)
       // plain product UUID search
-      let url = `/registration/product/${this.productSearch}/articleNr`
+      let url = `/registration/product/${searchString}/articleNr?lookup_subcomponents=true`
       if( this.articleSelected ){
         // article nr. + article serial search
-        url = `/registration/product/${this.productSearch}/articleNr/${this.articleSelected.articleNumber}`
+        url = `/registration/product/${searchString}/articleNr/${this.articleSelected.articleNumber}?lookup_subcomponents=true`
       }
-
+      console.log('Inside product search '+url)
       axios({
         method,
         url
@@ -191,11 +301,17 @@ export default {
     }
   },
   methods: {
+    productionInformation: function(stepName){
+      let result = null;
+      result = this.productDetails.production_information.find( function(currentValue, index, arr){
+        return ( currentValue.step_name === stepName );
+      });
+      return result;
+    },
     // reset local product selection by sub-component event
     handleProductUpdate: function(productSerial, productId ){
       this.productSerial = productSerial
       this.productId = productId
-      this.product_info_class = 'subtitle is-5 has-text-grey-darker'
     },
     // reset all product values
     newProduct () {
@@ -233,31 +349,23 @@ export default {
               }
           })
           .then( result => {
-            console.log('Article details');
-            console.log(result.data)
+            console.log('Got article details')
             this.isFetchingArticleDetails = false
             this.articleDetails = result.data.data
-            if( this.productDetails ){
-              // set ID/Serial for given subcomponents
-              this.articleDetails.bom.forEach(function(component){
-                  let result = this.productDetails.components.find( function(currentValue, index, arr){
-                    return currentValue.st_article_nr === component.articleNumber
-                  });
-                  console.log('Matching product details component:')
-                  console.log(result)
-                  if ( result ){
-                    // matching result -> add to articles bom array
-                    this.productDetails.components = this.grep(this.productDetails.components, function(e){
-                      // remove assigned enty from product details bom, required if we have multiple subcomponents of some art.nr
-                      return e.id != result.id
 
-                    })
-                    component.component_id = result.id
-                    component.component_serial = result.serial_nr
+            // find and assigne name of product.components via article.bom information
+            // TODO: should definitely be done on server side
+            if( this.productDetails != null){
+
+              this.productDetails.components.forEach(function(component){
+                let result = null;
+                  result = this.articleDetails.bom.find( function(currentValue, index, arr){
+                    return ( currentValue.articleNumber === component.st_article_nr );
+                  });
+                  if( result != null ){
+                    component.st_article_name = result.name;
                   }
               }, this)
-              console.log('Extended article details BOM:')
-              console.log(this.articleDetails.bom)
             }
           })
           .catch( error => {
