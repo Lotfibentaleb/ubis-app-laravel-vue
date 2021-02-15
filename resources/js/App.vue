@@ -39,7 +39,7 @@ export default {
             icon: 'crane',
           },
           {
-            to: '/users/index',
+            to: '/products/list',
             label: 'Products',
             icon: 'package-variant-closed',
           },
