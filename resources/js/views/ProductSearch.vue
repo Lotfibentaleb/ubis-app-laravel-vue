@@ -121,8 +121,8 @@
                 <p class="heading">Info</p>
                 <p class="subtitle is-5 has-text-grey-darker">{{item.note}}</p>
             </div>
-            <measurement-daisy-a-1 :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1>
-            <measurement-bl-press-a-1 :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-bl-press-a-1>
+<!--            <measurement-daisy-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1> -->
+            <measurement-b-l-press-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-b-l-press-a-1>
 <!--            <div class="level">
 
              <b-table :data="Object.entries(item.data).map(([key, value]) => key=value )" :columns="columns"></b-table>

@@ -87467,13 +87467,13 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/tables',
     name: 'tables',
     component: function component() {
-      return __webpack_require__.e(/*! import() */ 5).then(__webpack_require__.bind(null, /*! ./views/Tables.vue */ "./resources/js/views/Tables.vue"));
+      return __webpack_require__.e(/*! import() */ 6).then(__webpack_require__.bind(null, /*! ./views/Tables.vue */ "./resources/js/views/Tables.vue"));
     }
   }, {
     path: '/forms',
     name: 'forms',
     component: function component() {
-      return __webpack_require__.e(/*! import() */ 1).then(__webpack_require__.bind(null, /*! ./views/Forms.vue */ "./resources/js/views/Forms.vue"));
+      return __webpack_require__.e(/*! import() */ 2).then(__webpack_require__.bind(null, /*! ./views/Forms.vue */ "./resources/js/views/Forms.vue"));
     }
   }, {
     path: '/profile',
@@ -87485,26 +87485,26 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/clients/index',
     name: 'clients.index',
     component: function component() {
-      return __webpack_require__.e(/*! import() */ 4).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsIndex.vue */ "./resources/js/views/Clients/ClientsIndex.vue"));
+      return __webpack_require__.e(/*! import() */ 5).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsIndex.vue */ "./resources/js/views/Clients/ClientsIndex.vue"));
     }
   }, {
     path: '/clients/new',
     name: 'clients.new',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
     }
   }, {
     path: '/clients/:id',
     name: 'clients.edit',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./views/Clients/ClientsForm.vue */ "./resources/js/views/Clients/ClientsForm.vue"));
     },
     props: true
   }, {
     path: '/products/list',
     name: 'products.list',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(8), __webpack_require__.e(7)]).then(__webpack_require__.bind(null, /*! ./views/Products/ProductsList.vue */ "./resources/js/views/Products/ProductsList.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(7), __webpack_require__.e(4)]).then(__webpack_require__.bind(null, /*! ./views/Products/ProductsList.vue */ "./resources/js/views/Products/ProductsList.vue"));
     }
   }],
   scrollBehavior: function scrollBehavior(to, from, savedPosition) {
