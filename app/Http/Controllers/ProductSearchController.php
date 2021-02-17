@@ -255,7 +255,6 @@ class ProductSearchController extends Controller
         $timeseries_data = array();
         $timeseries_labels = array();   // labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09']
 
-
         // itterate to all possible measurements
         foreach($productionSection->production_section_template->data as $value){
             if( \property_exists($measurement, $value->title)){
@@ -266,7 +265,9 @@ class ProductSearchController extends Controller
                     // todo: put to function
                     $timestamp = null;
                     $valueLabel = str_replace('_timeseries', '', $value->title);
+                    $tsCount = 0;
                     foreach($measure as $tsentry){
+//                        if( $tsCount++ > 20) break;
                         // label
                         $datetimeValueEntry = new Carbon($tsentry->time);
                         $timestamp = ($timestamp==null)?$datetimeValueEntry:$timestamp;
@@ -363,6 +364,8 @@ class ProductSearchController extends Controller
 
         $diagramStruct = array();
         $diagramStruct['datasets'] = array();
+        $diagramStruct['labels'] = $timeseries_labels;
+
         $colorIndex = 1;
         foreach($timeseries_data as $tsDataName => $tsDataValues){
             $dataset = array(
@@ -385,7 +388,7 @@ class ProductSearchController extends Controller
             $diagramStruct['datasets'][] = $dataset;
             $colorIndex++;
         }
-        $diagramStruct['labels'] = $timeseries_labels;
+
 //        $diagramStruct['yLabels'] = range( -50, 600, 1);
 //        xLabels
 //        yLabels
