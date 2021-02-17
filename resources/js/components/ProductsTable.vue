@@ -42,10 +42,10 @@
         <b-table-column label="Status" field="lifecycle" sortable>
           {{ props.row.lifecycle }}
         </b-table-column>
-        <b-table-column label="Produktionsdaten" field="production_data_count" sortable>
+        <b-table-column label="Produktionsdaten" field="production_data_count">
           {{ props.row.production_data_count }}
         </b-table-column>
-        <b-table-column label="Komponenten" field="components_count" sortable>
+        <b-table-column label="Komponenten" field="components_count">
           {{ props.row.components_count }}
         </b-table-column>
         <b-table-column label="Produktionsauftrag" field="production_order_nr" sortable searchable>

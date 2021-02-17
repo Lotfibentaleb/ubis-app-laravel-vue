@@ -113,10 +113,10 @@ export default {
                 zeroLineColor: 'transparent'
               },
               ticks: {
-                padding: 20,
+                padding: 10,
                 fontColor: '#9a9a9a',
                 min: -50,
-                max: 600
+                max: 800
               }
             },
             {
@@ -128,7 +128,7 @@ export default {
                 drawOnChartArea: false, // only want the grid lines for one axis to show up
               },
               ticks: {
-                padding: 20,
+                padding: 10,
                 fontColor: '#9a9a9a',
                 min: 0,
                 max: 5

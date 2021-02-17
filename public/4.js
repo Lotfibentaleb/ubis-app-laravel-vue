@@ -550,8 +550,7 @@ var render = function() {
                     {
                       attrs: {
                         label: "Produktionsdaten",
-                        field: "production_data_count",
-                        sortable: ""
+                        field: "production_data_count"
                       }
                     },
                     [
@@ -566,11 +565,7 @@ var render = function() {
                   _c(
                     "b-table-column",
                     {
-                      attrs: {
-                        label: "Komponenten",
-                        field: "components_count",
-                        sortable: ""
-                      }
+                      attrs: { label: "Komponenten", field: "components_count" }
                     },
                     [
                       _vm._v(
