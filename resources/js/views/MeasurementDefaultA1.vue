@@ -36,7 +36,7 @@
 import CardComponent from '@/components/CardComponent'
 
 export default {
-  name: 'MeasurementDaisyA1',
+  name: 'MeasurementDefaultA1',
   components: { CardComponent },
   props: {
     dataentryid: { required: true },

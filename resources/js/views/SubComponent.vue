@@ -33,14 +33,15 @@ export default {
     articlenumber: { required: true },    // article number of parent article
     productid: { default: null },         // ID of parent product, if given
     componentserial:{ default: null },    // this components serial nr.
-    componentid:{ default: null }         // this components id
+    componentid:{ default: null },         // this components id
+    productionordernr:{ default: ''}
   },
   data () {
     return {
       transmissionActive: false,
       component_serial: null,
       component_id: null,
-      initialUpdate: false
+      initialUpdate: false,
     }
   },
   computed: {
@@ -66,6 +67,7 @@ export default {
       let data = {
         component_article_nr: `${this.componentarticledata.articleNumber}`,
         component_serial_nr: `${this.component_serial}`,
+        production_order_nr: `${this.productionordernr}`,
       }
       if( deleteComponent ){
         method = 'delete'
@@ -88,9 +90,8 @@ export default {
           this.component_serial = null
         }else{
           // add handling
-          if( this.productid == '-' || this.productid == null){
+          if( this.productid == '-' || this.producproduct_idtid == null){
             // if first component is stored, a new product is implicite created, so we have to publish its ID/Serial to our parent
-            this.productid = r.product_id
             this.productUpdate(r.product_serial, r.product_id)
           }
           // componente_serial still valid from input

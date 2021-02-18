@@ -1,20 +1,10 @@
 <template>
     <div>
-      <div class="level">
-        <div class="level-left">
-          <h5 class="title is-5">
-            Left
-          </h5>
-        </div>
-        <div class="level-right">
-          Right
-        </div>
-      </div>
-      <div>
+      <div class="section is-5">
         <b-table
         :hoverable="true"
         :data="values"
-        :row-class="(row, index) => row.result === 'nok' && 'is-nok'">
+        :row-class="(row, index) => row.conclusion === 'nok' && 'is-nok'">
         >
         <template slot-scope="props">
           <b-table-column label="Name" field="title" >
@@ -26,29 +16,28 @@
           <b-table-column label="Nominal" field="nominal" >
             {{ props.row.nominal }}{{ props.row.unit }}
           </b-table-column>
-          <b-table-column label="Measure" field="measurement" >
-            {{ props.row.measurement }}{{ props.row.unit }}
-          </b-table-column>
           <b-table-column label="Max" field="max" >
             {{ props.row.max }}{{ props.row.unit }}
           </b-table-column>
-          <b-table-column label="Result" field="result" >
-            {{ props.row.result }}
+          <b-table-column label="Messung" field="measurement" >
+            <b>{{ props.row.measurement }}{{ props.row.unit }}</b>
+          </b-table-column>
+          <b-table-column label="Ergebnis" field="conclusion" >
+            {{ props.row.conclusion }}
           </b-table-column>
 
         </template>
         </b-table>
       </div>
-      <div>
-      <div v-if="defaultChart.chartData" class="chart-area">
-        <line-chart style="height: 100%"
-                    ref="bigChart"
-                    chart-id="big-line-chart"
-                    :chart-data="defaultChart.chartData"
-                    :extra-options="defaultChart.extraOptions">
-        </line-chart>
-
-      </div>
+      <div class="section is-5">
+        <div v-if="defaultChart.chartData" class="chart-area">
+          <line-chart style="height: 100%"
+                      ref="bigChart"
+                      chart-id="big-line-chart"
+                      :chart-data="defaultChart.chartData"
+                      :extra-options="defaultChart.extraOptions">
+          </line-chart>
+        </div>
       </div>
     </div>
 </template>
@@ -304,7 +293,7 @@ export default {
         })
           .get(this.dataUrl+'/product/'+this.productid+'/productiondatabacklight/'+this.productioninformation.production_section_template.id)
           .then(r => {
-            console.log(r);
+//            console.log(r);
             /*
 {
     "data": {

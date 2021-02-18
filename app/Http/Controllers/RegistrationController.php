@@ -126,6 +126,7 @@ class RegistrationController extends Controller
         $validator = Validator::make($requestData, [
             'component_article_nr' => 'string|required|between:5,64',
             'component_serial_nr' => 'string|required|between:1,64',
+            'production_order_nr' => 'string|between:1,64|nullable',
             'product_article_nr' => 'required_if:product_id,-|nullable|string|between:5,64',
             'product_id' => 'exclude_if:product_id,-|required|uuid',    // if product id == - -> skip check
         ]);
@@ -151,13 +152,18 @@ class RegistrationController extends Controller
             ]
         ];
 
+        $productionOrderNr = $request->input('production_order_nr', null);
+        $postData = array('st_article_nr' => $articleNr);
+        if( $productionOrderNr != null && $productionOrderNr != ''){
+            $postData['production_order_nr'] = $productionOrderNr;
+        }
         $productNewlyCreated = false;
 
         $product = null;
         if( empty($id) || $id === '-'){
             // no product ID given -> create product
             $requestString = 'products';
-            $response = $client->request('POST', $baseUrl.$requestString, array_merge($options, ['json' => ['st_article_nr' => $articleNr]]));
+            $response = $client->request('POST', $baseUrl.$requestString, array_merge($options, ['json' => $postData]));
             $statusCode = $response->getStatusCode();
             if( $statusCode != 201){
                 $statusMessage = 'Could not create product.';
@@ -282,6 +288,19 @@ class RegistrationController extends Controller
         }
 
         $body = json_decode((string)$response->getBody());
+
+        // resolve subcomponents article names
+        // $body->data->components exists anyways, even empty
+        foreach($body->data->components as $component){
+            $requestString = 'articles/'.$component->st_article_nr;
+            $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
+            $statusCode = $response->getStatusCode();
+            $articleBody = json_decode($response->getBody()->getContents());
+            if( $statusCode == 200 ){
+                $component->st_article_name = $articleBody->data->name;
+            }
+        }
+
         return response()->json($body, $statusCode);
     }
 

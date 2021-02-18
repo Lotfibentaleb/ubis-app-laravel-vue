@@ -2340,6 +2340,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // @ is an alias to /src
 
 
@@ -2358,6 +2375,7 @@ __webpack_require__.r(__webpack_exports__);
       productDetails: null,
       productSerial: '-',
       productId: '-',
+      productionOrderNr: '',
       product_info_class: 'subtitle is-5 has-text-grey-lighter',
       productSearch: null,
       transmissionActive: false
@@ -2651,8 +2669,11 @@ __webpack_require__.r(__webpack_exports__);
     // this components serial nr.
     componentid: {
       "default": null
-    } // this components id
-
+    },
+    // this components id
+    productionordernr: {
+      "default": ''
+    }
   },
   data: function data() {
     return {
@@ -2687,7 +2708,8 @@ __webpack_require__.r(__webpack_exports__);
       var url = "/registration/product/".concat(this.productid, "/articleNr/").concat(this.articlenumber);
       var data = {
         component_article_nr: "".concat(this.componentarticledata.articleNumber),
-        component_serial_nr: "".concat(this.component_serial)
+        component_serial_nr: "".concat(this.component_serial),
+        production_order_nr: "".concat(this.productionordernr)
       };
 
       if (deleteComponent) {
@@ -2712,10 +2734,8 @@ __webpack_require__.r(__webpack_exports__);
           _this.component_serial = null;
         } else {
           // add handling
-          if (_this.productid == '-' || _this.productid == null) {
+          if (_this.productid == '-' || _this.producproduct_idtid == null) {
             // if first component is stored, a new product is implicite created, so we have to publish its ID/Serial to our parent
-            _this.productid = r.product_id;
-
             _this.productUpdate(r.product_serial, r.product_id);
           } // componente_serial still valid from input
 
@@ -25127,11 +25147,45 @@ var render = function() {
                 ? _c(
                     "div",
                     [
-                      _c("p", { staticClass: "title" }, [
-                        _vm._v(
-                          _vm._s(_vm.articleSelected.articleNumber) +
-                            " - " +
-                            _vm._s(_vm.articleName)
+                      _c("div", { staticClass: "level" }, [
+                        _c("div", { staticClass: "level-left" }, [
+                          _c("p", { staticClass: "title" }, [
+                            _vm._v(
+                              _vm._s(_vm.articleSelected.articleNumber) +
+                                " - " +
+                                _vm._s(_vm.articleName)
+                            )
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "level-right" },
+                          [
+                            _c(
+                              "b-field",
+                              {
+                                attrs: {
+                                  label: "Produktions-Auftrags-Nr.",
+                                  "label-position": "on-border"
+                                }
+                              },
+                              [
+                                _c("b-input", {
+                                  attrs: { size: "is-medium" },
+                                  model: {
+                                    value: _vm.productionOrderNr,
+                                    callback: function($$v) {
+                                      _vm.productionOrderNr = $$v
+                                    },
+                                    expression: "productionOrderNr"
+                                  }
+                                })
+                              ],
+                              1
+                            )
+                          ],
+                          1
                         )
                       ]),
                       _vm._v(" "),
@@ -25164,7 +25218,7 @@ var render = function() {
                               size: "is-medium",
                               value: _vm.productSearch,
                               placeholder:
-                                "Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"
+                                "Nach vorhandener Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"
                             },
                             nativeOn: {
                               change: function($event) {
@@ -25218,7 +25272,8 @@ var render = function() {
                           articlenumber: _vm.articleDetails.articleNumber,
                           productid: _vm.productId,
                           componentserial: item.component_serial,
-                          componentid: item.component_id
+                          componentid: item.component_id,
+                          productionordernr: _vm.productionOrderNr
                         },
                         on: { productUpdate: _vm.handleProductUpdate }
                       }),
@@ -25232,7 +25287,9 @@ var render = function() {
               )
             : _vm._e(),
           _vm._v(" "),
-          this.articleDetails != null && this.articleDetails.bom == null
+          this.articleDetails != null &&
+          (this.articleDetails.bom == null ||
+            this.articleDetails.bom.length == 0)
             ? _c(
                 "div",
                 [

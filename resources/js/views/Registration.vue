@@ -36,6 +36,7 @@
         </b-autocomplete>
         <br/>
         <b-field v-show="articleSelected == null">
+
             <b-input
             class="is-expanded"
             size="is-medium"
@@ -45,7 +46,16 @@
         </b-field>
 
         <div v-if="articleSelected != null">
-          <p class="title" >{{ articleSelected.articleNumber }} - {{ articleName }}</p>
+          <div class="level">
+            <div class="level-left">
+              <p class="title" >{{ articleSelected.articleNumber }} - {{ articleName }}</p>
+            </div>
+            <div class="level-right">
+              <b-field label="Produktions-Auftrags-Nr." label-position="on-border">
+                <b-input v-model="productionOrderNr" size="is-medium"/>
+              </b-field>
+            </div>
+          </div>
           <div class="level">
             <div>
               <p class="heading">Serial Nr</p>
@@ -62,7 +72,7 @@
               size="is-medium"
               :value="productSearch"
               @change.native="productSearch = $event.target.value"
-              placeholder="Nach Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"/>
+              placeholder="Nach vorhandener Produkt Seriennummer (z.B. 100004) oder ID (z.B. c54368a6-60cc-11eb-ae93-0242ac130002) suchen"/>
               <b-button :disabled="transmissionActive" type="is-success" label="suchen" size="is-medium"/>
           </b-field>
           <b-button @click="newProduct" type="subtitle is-5 is-light has-text-grey"  expanded>Neues Produkt anlegen</b-button>
@@ -72,11 +82,18 @@
       <!-- show all possible sub components -->
       <div v-if="this.articleDetails != null && this.articleDetails.bom != null">
         <div  v-for="item in this.articleDetails.bom" :key="item.name">
-            <sub-component v-on:productUpdate="handleProductUpdate" :componentarticledata=item :articlenumber="articleDetails.articleNumber" :productid="productId" :componentserial="item.component_serial" :componentid="item.component_id"></sub-component>
+            <sub-component v-on:productUpdate="handleProductUpdate"
+            :componentarticledata=item
+            :articlenumber="articleDetails.articleNumber"
+            :productid="productId"
+            :componentserial="item.component_serial"
+            :componentid="item.component_id"
+            :productionordernr="productionOrderNr"
+            ></sub-component>
             <br/>
         </div>
       </div>
-      <div v-if="this.articleDetails != null && this.articleDetails.bom == null">
+      <div v-if="this.articleDetails != null && (this.articleDetails.bom == null || this.articleDetails.bom.length == 0)" >
         <card-component title="Info" class="has-mobile-sort-spaced" icon="view-grid">
           <div class="level">
             <div class="level-left">
@@ -117,6 +134,7 @@ export default {
           productDetails: null,
           productSerial: '-',
           productId: '-',
+          productionOrderNr: '',
           product_info_class: 'subtitle is-5 has-text-grey-lighter',
           productSearch: null,
           transmissionActive: false
@@ -140,7 +158,7 @@ export default {
         return this.articleDetails.name
       }
       return this.articleSelected.name
-    }
+    },
   },
   mounted () {
     console.log('Inside mounted');

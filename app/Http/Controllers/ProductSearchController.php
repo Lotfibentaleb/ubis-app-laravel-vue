@@ -34,6 +34,96 @@ class ProductSearchController extends Controller
     }
 
 
+    function getProductionSection($productionInformation, $did)
+    {
+        $productionSection = null;
+        foreach($productionInformation as $key=>$value){
+            if( $value->production_section_template->id == $did){
+                $productionSection = $value;
+                break;
+            }
+        }
+        return $productionSection;
+    }
+
+    function processTimeSeriesValues($template /*template*/, $measure /*data*/)
+    {
+
+        // don't put timeseries on table
+        // todo: put to function
+        $timeseries_labels = array();
+        $timeseries_data = array();
+
+        $timestamp = null;
+        $valueLabel = str_replace('_timeseries', '', $template->title);
+        $tsCount = 0;
+        foreach($measure as $tsentry){
+    //                        if( $tsCount++ > 20) break;
+            // label
+            $datetimeValueEntry = new Carbon($tsentry->time);
+            $timestamp = ($timestamp==null)?$datetimeValueEntry:$timestamp;
+            $timeseries_labels[] = $datetimeValueEntry->diffInMilliseconds($timestamp);
+
+            // value
+            foreach($tsentry as $entryProperty=>$entryValue){
+                //$entryValue = ($entryValue>600)?600:$entryValue; // plausible?
+                if( $entryProperty == 'time') continue;
+                if( $entryProperty == 'value'){
+                    $timeseries_data[$valueLabel][] = $entryValue;
+                }else{
+                    $property = str_replace('value_', '', $entryProperty);
+                    $timeseries_data[$property][] = $entryValue;
+                }
+            }
+        }
+        return array('labels' => $timeseries_labels, 'data' => $timeseries_data);
+    }
+
+
+    function processTableValues($value /*template*/, $measure /*data*/)
+    {
+        $verify = true; // default we do verification
+
+        if( \property_exists($value , 'type' )){
+
+            if( $value->type == 'bool'){
+
+            }else
+            if( $value->type == 'integer'){
+
+            }else
+            if( $value->type == 'double'){
+                $measure = round($measure, 7, PHP_ROUND_HALF_UP);
+            }else
+            if( $value->type == 'time'){
+                $verify = false;
+            }
+        }
+
+        if( \property_exists($value , 'verify' )){
+            $verify = $value->verify;
+        }
+
+        $conclusion = 'not verified';
+        if( $verify ){
+            if( $value->strict ){
+                $conclusion = ($value->nominal == $measure)?'ok':'nok';
+            }else{
+                $conclusion = ($measure >= $value->min && $measure <= $value->max)?'ok':'nok';
+            }
+        }
+        $entry['title'] = $value->title;
+        $entry['max'] = $value->max;
+        $entry['min'] = $value->min;
+        $entry['nominal'] = $value->nominal;
+        $entry['unit'] = $value->unit;
+        $entry['strict'] = $value->strict;
+        $entry['conclusion'] = $conclusion;
+        $entry['measurement'] = $measure;
+        $entry['verified'] = $verify;
+        return $entry;
+    }
+
     public function products(Request $request) {
 
         $client = new GuzzleHttp\Client();
@@ -41,6 +131,7 @@ class ProductSearchController extends Controller
         $requestString = 'products?size=10&search_artnr='.$request->search_artnr;
         $options = [
 //            'debug' => fopen('php://stderr', 'w'),
+            'http_errors'=> false,
             'headers' =>[
             'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
             'Accept'        => 'application/json',
@@ -48,11 +139,6 @@ class ProductSearchController extends Controller
             ]
         ];
 
-
-        //$request = $client->createRequest('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
-        //print_r(array($baseUrl.$requestString));
-
-        //$response = $client->request('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
@@ -130,46 +216,20 @@ class ProductSearchController extends Controller
 
         $body = json_decode($response->getBody()->getContents());
         $productionInformation = $body->data->production_information;
-        $productionSection = null;
-        foreach($productionInformation as $key=>$value){
-            if( $value->production_section_template->id == $did){
-                $productionSection = $value;
-                break;
-            }
-        }
+        $productionSection = $this->getProductionSection($productionInformation, $did);
 
         $resultList = array();
 
         // itterate to all possible measurements
         foreach($productionSection->production_section_template->data as $value){
             if( \property_exists($measurement, $value->title)){
-                $title = $value->title;
-                $measure = $measurement->$title;
-                if( $value->type == 'bool'){
-
-                }else
-                if( $value->type == 'integer'){
-
-                }else
-                if( $value->type == 'double'){
-                    $measure = round($measure, 7, PHP_ROUND_HALF_UP);
+                $title = $value->title; // get title of template
+                $measure = $measurement->$title;    // get entry
+                if( \property_exists($value , 'datatype' )){
+                    continue;
                 }
 
-                $result = 'ok';
-                if( $value->strict ){
-                    $result = ($value->nominal == $measure)?'ok':'nok';
-                }else{
-                    $result = ($measure >= $value->min && $measure <= $value->max)?'ok':'nok';
-                }
-                $entry['title'] = $title;
-                $entry['max'] = $value->max;
-                $entry['min'] = $value->min;
-                $entry['nominal'] = $value->nominal;
-                $entry['unit'] = $value->unit;
-                $entry['strict'] = $value->strict;
-                $entry['result'] = $result;
-                $entry['measurement'] = $measure;
-                $resultList[] = $entry;
+                $resultList[] = $this->processTableValues($value /*template*/, $measure /*data*/);
             }
         }
 
@@ -242,13 +302,8 @@ class ProductSearchController extends Controller
 
         $body = json_decode($response->getBody()->getContents());
         $productionInformation = $body->data->production_information;
-        $productionSection = null;
-        foreach($productionInformation as $key=>$value){
-            if( $value->production_section_template->id == $did){
-                $productionSection = $value;
-                break;
-            }
-        }
+
+        $productionSection = $this->getProductionSection($productionInformation, $did);
 
         $resultList = array();
 
@@ -258,60 +313,23 @@ class ProductSearchController extends Controller
         // itterate to all possible measurements
         foreach($productionSection->production_section_template->data as $value){
             if( \property_exists($measurement, $value->title)){
-                $title = $value->title;
-                $measure = $measurement->$title;
-                if( str_contains($value->title, 'timeseries')){
-                    // don't put timeseries on table
-                    // todo: put to function
-                    $timestamp = null;
-                    $valueLabel = str_replace('_timeseries', '', $value->title);
-                    $tsCount = 0;
-                    foreach($measure as $tsentry){
-//                        if( $tsCount++ > 20) break;
-                        // label
-                        $datetimeValueEntry = new Carbon($tsentry->time);
-                        $timestamp = ($timestamp==null)?$datetimeValueEntry:$timestamp;
-                        $timeseries_labels[] = $datetimeValueEntry->diffInMilliseconds($timestamp);
+                $title = $value->title; // get title of template
+                $measure = $measurement->$title;    // get entry
+                if( \property_exists($value , 'datatype' )){
 
-                        // value
-                        foreach($tsentry as $entryProperty=>$entryValue){
-                            //$entryValue = ($entryValue>600)?600:$entryValue; // plausible?
-                            if( $entryProperty == 'time') continue;
-                            if( $entryProperty == 'value'){
-                                $timeseries_data[$valueLabel][] = $entryValue;
-                            }else{
-                                $property = str_replace('value_', '', $entryProperty);
-                                $timeseries_data[$property][] = $entryValue;
-                            }
-                        }
+                    // there is a datatype description
+                    $datatype = $value->datatype;
+                    if( $datatype=='timeseries'){
+                        $tsRetval = $this->processTimeSeriesValues($value /*template*/, $measure /*data*/);
+                        $timeseries_data = $tsRetval['data'];
+                        $timeseries_labels = $tsRetval['labels'];
+                    }else
+                    if( $datatype=='json'){
+                        // no handling atm
                     }
-                    continue;
+                    continue;   // break loop, to avoid putting data on table
                 }
-                if( $value->type == 'bool'){
-
-                }else
-                if( $value->type == 'integer'){
-
-                }else
-                if( $value->type == 'double'){
-                    $measure = round($measure, 7, PHP_ROUND_HALF_UP);
-                }
-
-                $result = 'ok';
-                if( $value->strict ){
-                    $result = ($value->nominal == $measure)?'ok':'nok';
-                }else{
-                    $result = ($measure >= $value->min && $measure <= $value->max)?'ok':'nok';
-                }
-                $entry['title'] = $title;
-                $entry['max'] = $value->max;
-                $entry['min'] = $value->min;
-                $entry['nominal'] = $value->nominal;
-                $entry['unit'] = $value->unit;
-                $entry['strict'] = $value->strict;
-                $entry['result'] = $result;
-                $entry['measurement'] = $measure;
-                $resultList[] = $entry;
+                $resultList[] = $this->processTableValues($value /*template*/, $measure /*data*/);
             }
         }
 

@@ -66,78 +66,111 @@
           </div>
 
           <div v-if="productDetails != null">
-          <div class="level">
-            <div>
-              <p class="heading">Anlage Datum</p>
-              <p class="subtitle is-5 has-text-grey-darker">{{productDetails.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+            <div class="level">
+              <div class="level-left">
+                <div>
+                  <p class="heading">Anlage Datum</p>
+                  <p class="subtitle is-5 has-text-grey-darker">{{productDetails.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+                </div>
+              </div>
+              <div class="level-item">
+                <div>
+                  <p class="heading has-text-centered">Produktions Status</p>
+                  <!-- https://buefy.org/documentation/steps -->
+                  <p class="subtitle is-4 has-text-grey-darker has-text-centered">{{productDetails.lifecycle}}</p>
+                </div>
+              </div>
+  <!--
+              <div class="level-right">
+              <div>
+                <p class="heading has-text-right">Bearbeiter</p>
+                <p class="subtitle is-5 has-text-grey-darker has-text-right">{{productDetails.created_by}}</p>
+              </div>
+              </div>
+  -->
+              <div class="level-right">
+                <div>
+                <p class="heading has-text-right">Produktionsauftrags Nr.</p>
+                <p class="subtitle is-5 has-text-grey-darker has-text-right">{{productDetails.production_order_nr}}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p class="heading has-text-right">Produktions Status</p>
-              <!-- https://buefy.org/documentation/steps -->
-              <p class="subtitle is-5 has-text-grey-darker has-text-righ">{{productDetails.lifecycle}}</p>
-            </div>
-          </div>
           </div>
 
         </div>
       </card-component>
 
       <div v-if="productDetails != null">
-        <card-component title="Produkt Komponenten" class="has-mobile-sort-spaced" icon="view-comfy">
 
-          <div  v-for="item in this.productDetails.components" :key="item.id">
-            <div class="level">
+        <card-component title="Produkt Komponenten" class="has-mobile-sort-spaced" icon="view-comfy">
+          <div class="level">
+            <div class="level-left">
               <div>
-                {{item.st_article_nr}} - {{item.st_article_name}}
+                <p>Artikel / Serien Nr.</p>
               </div>
+            </div>
+            <div class="level-right">
               <div>
-                {{item.serial_nr}}
-              </div>
-              <div>
-                {{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}
+                <p class="has-text-right">Registriert am</p>
               </div>
             </div>
           </div>
-
-        </card-component>
-      </div>
-
-      <div v-if="productDetails != null">
-        <div  v-for="(item, index) in this.productDetails.production_dataset" :key="item.id">
-
-          <br/>
-          <card-component :title="'Produktions-Abschnitt: ' +index" class="has-mobile-sort-spaced" icon="progress-wrench">
+          <div  v-for="item in this.productDetails.components" :key="item.id">
             <div class="level">
-              <div>
-                <p class="heading">Erstellt am</p>
-                <p class="subtitle is-5 has-text-grey-darker">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+              <div class="level-left">
+                <div>
+                  <p>{{item.st_article_nr}} - {{item.st_article_name}}   /   {{item.serial_nr}}</p>
+                </div>
               </div>
-              <div>
+              <div class="level-right">
+                <div>
+                  <p class="has-text-right">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </card-component>
+
+        <div  v-for="(item, index) in this.productDetails.production_dataset" :key="item.id">
+          <br/>
+          <card-component :title="'Produktions-Abschnitt: ' +index+'  - '+item.description" class="has-mobile-sort-spaced" icon="progress-wrench">
+            <div class="level">
+              <div class="level-left">
+                <div>
+                <p class="heading">Erstellt am</p>
+                <p class="subtitle is-6 has-text-grey-darker">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
+                </div>
+              </div>
+              <div class="level-item has-text-centered">
+                <div>
                 <p class="heading">Status</p>
                 <p class="subtitle is-5 has-text-grey-darker">{{item.state}}</p>
+                </div>
               </div>
+              <div class="level-right">
+                <div>
+                <p class="heading has-text-right">Bearbeiter</p>
+                <p class="subtitle is-6 has-text-grey-darker">{{item.created_by}}</p>
+                </div>
+              </div>
+
             </div>
             <div class="level">
                 <p class="heading">Info</p>
                 <p class="subtitle is-5 has-text-grey-darker">{{item.note}}</p>
             </div>
-<!--            <measurement-daisy-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1> -->
-            <measurement-b-l-press-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-b-l-press-a-1>
-<!--            <div class="level">
-
-             <b-table :data="Object.entries(item.data).map(([key, value]) => key=value )" :columns="columns"></b-table>
-
-              <b-table :data="Array.from(Object.entries(item.data))" :columns="columns"></b-table>
-
-              <b-table :data="Array.from(Object.keys(item.data), k=>[`${k}`, item.data[k]])" :columns="columns"></b-table>
-              <b-table :data="Array.from(new Map(Object.entries(item.data)))" :columns="columns"></b-table>
-
-
+            <div v-if="item.render_hint == 'MeasurementDaisyA1'">
+              <measurement-daisy-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1>
             </div>
--->
+            <div v-if="item.render_hint == 'MeasurementBLPressA1'">
+              <measurement-b-l-press-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-b-l-press-a-1>
+            </div>
+            <div v-if="item.render_hint == 'default'">
+              <measurement-default-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-default-a-1>
+            </div>
           </card-component>
-
         </div>
+
       </div>
 
 
@@ -166,6 +199,7 @@ import debounce from 'lodash/debounce'
 import SubComponent from './SubComponent.vue'
 import MeasurementDaisyA1 from './MeasurementDaisyA1.vue'
 import MeasurementBLPressA1 from './MeasurementBLPressA1.vue'
+import MeasurementDefaultA1 from './MeasurementDefaultA1.vue'
 
 
 
@@ -226,7 +260,8 @@ export default {
     HeroBar,
     SubComponent,
     MeasurementDaisyA1,
-    MeasurementBLPressA1
+    MeasurementBLPressA1,
+    MeasurementDefaultA1
   },
   computed: {
     'server_data': function(){
