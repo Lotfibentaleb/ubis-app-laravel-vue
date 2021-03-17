@@ -151,3 +151,17 @@ table.table {
     }
   }
 }
+
+.btn{
+  &.excel-export{
+    display: flex;
+    align-items: center;
+    background: #888bf1;
+    color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 4px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+}

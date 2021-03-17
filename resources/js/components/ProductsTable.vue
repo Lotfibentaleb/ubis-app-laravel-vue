@@ -3,7 +3,17 @@
     <modal-trash-box :is-active="isModalActive" :trash-subject="trashObjectName" @confirm="trashConfirm" @cancel="trashCancel"/>
     <b-field grouped group-multiline>
           <b-button type="is-info" disabled>Anzahl Einträge: {{this.total}}</b-button>
+          <downloadexcel
+            v-if="!isLoading"
+            class="btn excel-export"
+            :data="excelProducts"
+            :fields="jsonFields"
+            :before-generate="startDownload"
+            :before-finish="finishDownload">
+            Download Excel
+          </downloadexcel>
     </b-field>
+
     <b-table
       :checked-rows.sync="checkedRows"
       :checkable="checkable"
@@ -106,10 +116,11 @@
 <script>
 import ModalTrashBox from '@/components/ModalTrashBox'
 import debounce from 'lodash/debounce'
+import downloadexcel from "vue-json-excel";
 
 export default {
   name: 'ProductsTable',
-  components: { ModalTrashBox },
+  components: { ModalTrashBox, downloadexcel },
   props: {
     dataUrl: {
       type: String,
@@ -126,7 +137,8 @@ export default {
       trashObject: null,
       products: [],
       isLoading: false,
-      perPage: 20,
+      isExcelLoading: false,
+      perPage: 10,
       checkedRows: [],
       sortField:'',
       sortOrder:'asc',
@@ -134,6 +146,16 @@ export default {
       page: 1,
       total: 0,
       filterValues: '{}',
+      excelProducts: [],
+      jsonFields: {
+        'Artikel-Nr.': 'st_article_nr',
+        'Serial-Nr.': 'st_serial_nr',
+        'Status': 'lifecycle',
+        'Produktionsdaten': 'production_data_count',
+        'Komponenten': 'components_count',
+        'Produktionsauftrag': 'production_order_nr',
+        'Erstellt': 'created_at'
+      },
     }
   },
   watch:{
@@ -151,6 +173,7 @@ export default {
   },
   created () {
     this.getData()
+    this.getExcelData()
   },
   methods: {
     onPageChange(page) {
@@ -161,19 +184,14 @@ export default {
         this.sortField = field
         this.sortOrder = order
         this.getData()
+        this.getExcelData()
     },
     onFilterChange: debounce(function (filter) {
-      // st_article_nr: "15"
       console.warn('filter', Object.entries(filter));
       this.filterValues = '';
-/*      Object.entries(filter).forEach(function(element){
-        this.filterValues = this.filterValues+element[0]+"="+element[1]+"&"
-      }, this)
-      console.warn('ErgebnisJSON', JSON.stringify(filter))
-      console.warn('Ergebnis', this.filterValues);
-*/
       this.filterValues = encodeURIComponent(JSON.stringify(filter));
       this.getData()
+      this.getExcelData()
     }, 250),
     getData () {
       if (this.dataUrl) {
@@ -192,7 +210,6 @@ export default {
         })
           .get(this.dataUrl+'?'+params)
           .then(r => {
-            console.log(r);
             this.isLoading = false
             if (r.data && r.data.data) {
               this.perPage = r.data.meta.per_page
@@ -203,6 +220,38 @@ export default {
           })
           .catch( err => {
             this.isLoading = false
+            this.$buefy.toast.open({
+              message: `Error: ${err.message}`,
+              type: 'is-danger',
+              queue: false
+            })
+          })
+      }
+    },
+    getExcelData () {
+      if(this.dataUrl){
+        this.isExcelLoading = true
+
+        const params = [
+                `sort_by=${this.sortField}.${this.sortOrder}`,
+                `page=${this.page}`,
+                `filter=${this.filterValues}`
+            ].join('&')
+
+        axios.create({
+            headers: {
+            'Content-Type': 'application/json',
+        }
+        })
+          .get(this.dataUrl + '/excel?' + params)
+          .then(r => {
+            this.isExcelLoading = false
+            if (r.data && r.data.data) {
+              this.excelProducts = r.data.data
+            }
+          })
+          .catch( err => {
+            this.isExcelLoading = false
             this.$buefy.toast.open({
               message: `Error: ${err.message}`,
               type: 'is-danger',
@@ -236,6 +285,12 @@ export default {
     },
     trashCancel () {
       this.isModalActive = false
+    },
+    startDownload () {
+      console.log("Started Download!")
+    },
+    finishDownload () {
+      console.log("Finished Download!")
     }
   }
 }

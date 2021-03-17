@@ -56,6 +56,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_ModalTrashBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/components/ModalTrashBox */ "./resources/js/components/ModalTrashBox.vue");
 /* harmony import */ var lodash_debounce__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash/debounce */ "./node_modules/lodash/debounce.js");
 /* harmony import */ var lodash_debounce__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash_debounce__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var vue_json_excel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-json-excel */ "./node_modules/vue-json-excel/dist/vue-json-excel.esm.js");
 //
 //
 //
@@ -161,12 +162,24 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'ProductsTable',
   components: {
-    ModalTrashBox: _components_ModalTrashBox__WEBPACK_IMPORTED_MODULE_0__["default"]
+    ModalTrashBox: _components_ModalTrashBox__WEBPACK_IMPORTED_MODULE_0__["default"],
+    downloadexcel: vue_json_excel__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   props: {
     dataUrl: {
@@ -184,14 +197,25 @@ __webpack_require__.r(__webpack_exports__);
       trashObject: null,
       products: [],
       isLoading: false,
-      perPage: 20,
+      isExcelLoading: false,
+      perPage: 10,
       checkedRows: [],
       sortField: '',
       sortOrder: 'asc',
       defaultSortOrder: 'asc',
       page: 1,
       total: 0,
-      filterValues: '{}'
+      filterValues: '{}',
+      excelProducts: [],
+      jsonFields: {
+        'Artikel-Nr.': 'st_article_nr',
+        'Serial-Nr.': 'st_serial_nr',
+        'Status': 'lifecycle',
+        'Produktionsdaten': 'production_data_count',
+        'Komponenten': 'components_count',
+        'Produktionsauftrag': 'production_order_nr',
+        'Erstellt': 'created_at'
+      }
     };
   },
   watch: {
@@ -210,6 +234,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     this.getData();
+    this.getExcelData();
   },
   methods: {
     onPageChange: function onPageChange(page) {
@@ -220,20 +245,14 @@ __webpack_require__.r(__webpack_exports__);
       this.sortField = field;
       this.sortOrder = order;
       this.getData();
+      this.getExcelData();
     },
     onFilterChange: lodash_debounce__WEBPACK_IMPORTED_MODULE_1___default()(function (filter) {
-      // st_article_nr: "15"
       console.warn('filter', Object.entries(filter));
       this.filterValues = '';
-      /*      Object.entries(filter).forEach(function(element){
-              this.filterValues = this.filterValues+element[0]+"="+element[1]+"&"
-            }, this)
-            console.warn('ErgebnisJSON', JSON.stringify(filter))
-            console.warn('Ergebnis', this.filterValues);
-      */
-
       this.filterValues = encodeURIComponent(JSON.stringify(filter));
       this.getData();
+      this.getExcelData();
     }, 250),
     getData: function getData() {
       var _this = this;
@@ -246,7 +265,6 @@ __webpack_require__.r(__webpack_exports__);
             'Content-Type': 'application/json'
           }
         }).get(this.dataUrl + '?' + params).then(function (r) {
-          console.log(r);
           _this.isLoading = false;
 
           if (r.data && r.data.data) {
@@ -266,24 +284,51 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     },
+    getExcelData: function getExcelData() {
+      var _this2 = this;
+
+      if (this.dataUrl) {
+        this.isExcelLoading = true;
+        var params = ["sort_by=".concat(this.sortField, ".").concat(this.sortOrder), "page=".concat(this.page), "filter=".concat(this.filterValues)].join('&');
+        axios.create({
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).get(this.dataUrl + '/excel?' + params).then(function (r) {
+          _this2.isExcelLoading = false;
+
+          if (r.data && r.data.data) {
+            _this2.excelProducts = r.data.data;
+          }
+        })["catch"](function (err) {
+          _this2.isExcelLoading = false;
+
+          _this2.$buefy.toast.open({
+            message: "Error: ".concat(err.message),
+            type: 'is-danger',
+            queue: false
+          });
+        });
+      }
+    },
     trashModal: function trashModal(trashObject) {
       this.trashObject = trashObject;
       this.isModalActive = true;
     },
     trashConfirm: function trashConfirm() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.isModalActive = false;
       axios["delete"]("".concat(this.dataUrl, "/product/").concat(this.trashObject.id)).then(function (r) {
-        _this2.getData(); // update list
+        _this3.getData(); // update list
 
 
-        _this2.$buefy.snackbar.open({
+        _this3.$buefy.snackbar.open({
           message: "Deleted ".concat(r.data.data.st_article_nr, "/").concat(r.data.data.st_serial_nr, " and ").concat(r.data.data.deleted_device_records, " Measurements, ").concat(r.data.data.deleted_sub_components, " Components."),
           queue: false
         });
       })["catch"](function (err) {
-        _this2.$buefy.toast.open({
+        _this3.$buefy.toast.open({
           message: "Error: ".concat(err.message),
           type: 'is-danger',
           queue: false
@@ -292,6 +337,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     trashCancel: function trashCancel() {
       this.isModalActive = false;
+    },
+    startDownload: function startDownload() {
+      console.log("Started Download!");
+    },
+    finishDownload: function finishDownload() {
+      console.log("Finished Download!");
     }
   }
 });
@@ -434,7 +485,23 @@ var render = function() {
         [
           _c("b-button", { attrs: { type: "is-info", disabled: "" } }, [
             _vm._v("Anzahl Einträge: " + _vm._s(this.total))
-          ])
+          ]),
+          _vm._v(" "),
+          !_vm.isLoading
+            ? _c(
+                "downloadexcel",
+                {
+                  staticClass: "btn excel-export",
+                  attrs: {
+                    data: _vm.excelProducts,
+                    fields: _vm.jsonFields,
+                    "before-generate": _vm.startDownload,
+                    "before-finish": _vm.finishDownload
+                  }
+                },
+                [_vm._v("\n            Download Excel\n          ")]
+              )
+            : _vm._e()
         ],
         1
       ),

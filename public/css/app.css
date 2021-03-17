@@ -17203,7 +17203,6 @@ MIT (https://github.com/Wikiki/bulma-steps/blob/master/LICENSE)
 }
 
 .b-table .table th.is-sticky {
-  position: -webkit-sticky;
   position: sticky;
   left: 0;
   z-index: 3 !important;
@@ -17259,7 +17258,6 @@ MIT (https://github.com/Wikiki/bulma-steps/blob/master/LICENSE)
 }
 
 .b-table .table td.is-sticky {
-  position: -webkit-sticky;
   position: sticky;
   left: 0;
   z-index: 1;
@@ -17283,7 +17281,6 @@ MIT (https://github.com/Wikiki/bulma-steps/blob/master/LICENSE)
 }
 
 .b-table .table-wrapper.has-sticky-header tr:first-child th {
-  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 2;
@@ -18799,6 +18796,7 @@ section.hero.is-hero-bar .hero-body .button.is-hero-button:hover {
 
 .card .card-header {
   border-bottom: 1px solid #759BAB;
+  align-items: center;
 }
 
 .card .card-content hr {
@@ -18951,6 +18949,18 @@ table.table tr td.is-image-cell:first-child .image {
     height: auto;
     margin: 0 auto 0.375rem;
   }
+}
+
+.btn.excel-export {
+  display: flex;
+  align-items: center;
+  background: #888bf1;
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
 }
 
 .is-tiles-wrapper {
