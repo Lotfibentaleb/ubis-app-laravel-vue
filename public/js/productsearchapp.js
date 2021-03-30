@@ -86848,7 +86848,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/oem/Documents/co-work/ubis-ui-a1/resources/js/productsearchapp.js */"./resources/js/productsearchapp.js");
+module.exports = __webpack_require__(/*! /home/ubuntu/Documents/vue_laravel/ubis-ui-a1/resources/js/productsearchapp.js */"./resources/js/productsearchapp.js");
 
 
 /***/ })
