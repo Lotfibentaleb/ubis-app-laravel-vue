@@ -104,79 +104,6 @@
           </div>
         </card-component>
       </div>
-
-    <div v-if="productDetails != null">
-
-        <card-component title="Produkt Komponenten" class="has-mobile-sort-spaced" icon="view-comfy">
-            <div class="level">
-                <div class="level-left">
-                    <div>
-                        <p>Artikel / Serien Nr.</p>
-                    </div>
-                </div>
-                <div class="level-right">
-                    <div>
-                        <p class="has-text-right">Registriert am</p>
-                    </div>
-                </div>
-            </div>
-            <div  v-for="item in this.productDetails.components" :key="item.id">
-                <div class="level">
-                    <div class="level-left">
-                        <div>
-                            <p>{{item.st_article_nr}} - {{item.st_article_name}}   /   {{item.serial_nr}}</p>
-                        </div>
-                    </div>
-                    <div class="level-right">
-                        <div>
-                            <p class="has-text-right">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </card-component>
-
-        <div  v-for="(item, index) in this.productDetails.production_dataset" :key="item.id">
-            <br/>
-            <card-component :title="'Produktions-Abschnitt: ' +index+'  - '+item.description" class="has-mobile-sort-spaced" icon="progress-wrench">
-                <div class="level">
-                    <div class="level-left">
-                        <div>
-                            <p class="heading">Erstellt am</p>
-                            <p class="subtitle is-6 has-text-grey-darker">{{item.created_at | moment("DD.MM.YYYY / h:mm:ss")}}</p>
-                        </div>
-                    </div>
-                    <div class="level-item has-text-centered">
-                        <div>
-                            <p class="heading">Status</p>
-                            <p class="subtitle is-5 has-text-grey-darker">{{item.state}}</p>
-                        </div>
-                    </div>
-                    <div class="level-right">
-                        <div>
-                            <p class="heading has-text-right">Bearbeiter</p>
-                            <p class="subtitle is-6 has-text-grey-darker">{{item.created_by}}</p>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="level">
-                    <p class="heading">Info</p>
-                    <p class="subtitle is-5 has-text-grey-darker">{{item.note}}</p>
-                </div>
-                <div v-if="item.render_hint == 'MeasurementDaisyA1'">
-                    <measurement-daisy-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-daisy-a-1>
-                </div>
-                <div v-if="item.render_hint == 'MeasurementBLPressA1'">
-                    <measurement-b-l-press-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-b-l-press-a-1>
-                </div>
-                <div v-if="item.render_hint == 'default'">
-                    <measurement-default-a-1 data-url="/productsearch" :dataentryid="item.id" :dataentrystepname="index" :productid="productId" :productioninformation="productionInformation(index)"></measurement-default-a-1>
-                </div>
-            </card-component>
-        </div>
-    </div>
-
     </section>
   </div>
 </template>
@@ -191,9 +118,6 @@ import CardWidget from '@/components/CardWidget'
 import CardComponent from '@/components/CardComponent'
 import debounce from 'lodash/debounce'
 import SubComponent from './SubComponent.vue'
-import MeasurementDaisyA1 from './MeasurementDaisyA1.vue'
-import MeasurementBLPressA1 from './MeasurementBLPressA1.vue'
-import MeasurementDefaultA1 from './MeasurementDefaultA1.vue'
 
 
 
@@ -221,10 +145,7 @@ export default {
     CardWidget,
     Tiles,
     HeroBar,
-    SubComponent,
-    MeasurementDaisyA1,
-    MeasurementBLPressA1,
-    MeasurementDefaultA1
+    SubComponent
   },
   computed: {
     'server_data': function(){
@@ -360,13 +281,13 @@ export default {
                   console.log(result)
                   if ( result ){
                     // matching result -> add to articles bom array
-                    // this.productDetails.components = this.grep(this.productDetails.components, function(e){
-                    //   // remove assigned enty from product details bom, required if we have multiple subcomponents of some art.nr
-                    //   return e.id != result.id
-                    //
-                    // })
-                    // component.component_id = result.id
-                    // component.component_serial = result.serial_nr
+                    this.productDetails.components = this.grep(this.productDetails.components, function(e){
+                      // remove assigned enty from product details bom, required if we have multiple subcomponents of some art.nr
+                      return e.id != result.id
+
+                    })
+                    component.component_id = result.id
+                    component.component_serial = result.serial_nr
                   }
               }, this)
               console.log('Extended article details BOM:')
