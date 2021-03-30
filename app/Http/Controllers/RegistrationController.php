@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 use GuzzleHttp;
 use Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Config;
 
 class RegistrationController extends Controller
 {
@@ -232,9 +231,11 @@ class RegistrationController extends Controller
         if($validator->fails()){
             return response()->json(['message' =>  'Requesting product failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
         }
-        if (Cache::has(Config::get('constants.PRODUCT_LIST')) && Cache::has(Config::get('constants.PRODUCT_LIST_STATUS_CODE'))) {
-            $body = Cache::get(Config::get('constants.PRODUCT_LIST'));
-            $statusCode = Cache::get(Config::get('constants.PRODUCT_LIST_STATUS_CODE'));
+        $cacheKey = $id.$articleNr;
+        $cacheStatusCode = $cacheKey.'statuscode';
+        if (Cache::has($cacheKey)) {
+            $body = Cache::get($cacheKey);
+            $statusCode = Cache::get($cacheStatusCode);
             return response()->json($body, $statusCode);
         } else {
             $client = new GuzzleHttp\Client();
@@ -285,8 +286,8 @@ class RegistrationController extends Controller
                     $component->st_article_name = $articleBody->data->name;
                 }
             }
-            Cache::put(Config::get('constants.PRODUCT_LIST'), $body, $seconds = 3600);
-            Cache::put(Config::get('constants.PRODUCT_LIST_STATUS_CODE'), $statusCode, $seconds = 3600); //1 hour
+            Cache::put($cacheKey, $body, $seconds = 3600);
+            Cache::put($cacheStatusCode, $statusCode, $seconds = 3600); //1 hour
             return response()->json($body, $statusCode);
         }
     }
