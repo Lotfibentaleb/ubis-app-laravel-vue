@@ -3,15 +3,8 @@
     <modal-trash-box :is-active="isModalActive" :trash-subject="trashObjectName" @confirm="trashConfirm" @cancel="trashCancel"/>
     <b-field grouped group-multiline>
           <b-button type="is-info" disabled>Anzahl Einträge: {{this.total}}</b-button>
-          <downloadexcel
-            v-if="!isLoading"
-            class="btn excel-export"
-            :data="excelProducts"
-            :fields="jsonFields"
-            :before-generate="startDownload"
-            :before-finish="finishDownload">
-            Download Excel
-          </downloadexcel>
+          <a href="productlist/excel?enhanced=0&size=10&sort_by=.asc&filter={}"><b-button class="btn excel-export">Download Excel</b-button></a>
+          <a href="productlist/enhancedExcel?enhanced=1&size=10&sort_by=.asc&filter={}"><b-button class="btn excel-export">Enhanced Excel</b-button></a>
     </b-field>
 
     <b-table
@@ -117,10 +110,11 @@
 import ModalTrashBox from '@/components/ModalTrashBox'
 import debounce from 'lodash/debounce'
 import downloadexcel from "vue-json-excel";
+import BButton from "buefy/src/components/button/Button";
 
 export default {
   name: 'ProductsTable',
-  components: { ModalTrashBox, downloadexcel },
+  components: {BButton, ModalTrashBox, downloadexcel },
   props: {
     dataUrl: {
       type: String,
@@ -173,7 +167,6 @@ export default {
   },
   created () {
     this.getData()
-    this.getExcelData()
   },
   methods: {
     onPageChange(page) {
@@ -184,14 +177,12 @@ export default {
         this.sortField = field
         this.sortOrder = order
         this.getData()
-        this.getExcelData()
     },
     onFilterChange: debounce(function (filter) {
       console.warn('filter', Object.entries(filter));
       this.filterValues = '';
       this.filterValues = encodeURIComponent(JSON.stringify(filter));
       this.getData()
-      this.getExcelData()
     }, 250),
     getData () {
       if (this.dataUrl) {
@@ -220,38 +211,6 @@ export default {
           })
           .catch( err => {
             this.isLoading = false
-            this.$buefy.toast.open({
-              message: `Error: ${err.message}`,
-              type: 'is-danger',
-              queue: false
-            })
-          })
-      }
-    },
-    getExcelData () {
-      if(this.dataUrl){
-        this.isExcelLoading = true
-
-        const params = [
-                `sort_by=${this.sortField}.${this.sortOrder}`,
-                `page=${this.page}`,
-                `filter=${this.filterValues}`
-            ].join('&')
-
-        axios.create({
-            headers: {
-            'Content-Type': 'application/json',
-        }
-        })
-          .get(this.dataUrl + '/excel?' + params)
-          .then(r => {
-            this.isExcelLoading = false
-            if (r.data && r.data.data) {
-              this.excelProducts = r.data.data
-            }
-          })
-          .catch( err => {
-            this.isExcelLoading = false
             this.$buefy.toast.open({
               message: `Error: ${err.message}`,
               type: 'is-danger',
