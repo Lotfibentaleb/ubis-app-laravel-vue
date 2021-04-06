@@ -25,6 +25,7 @@ Vue.config.productionTip = false
 /* These components are used in recursion algorithm */
 Vue.component('AsideMenuList', AsideMenuList)
 
+Vue.use(require('vue-moment'));
 /* Main component */
 Vue.component('App', App)
 

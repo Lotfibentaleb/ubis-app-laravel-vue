@@ -44,9 +44,9 @@ export default new Router({
       props: true
     },
     {
-      path: '/users/index',
-      name: 'users.index',
-      component: () => import('./views/Users/UsersIndex.vue'),
+      path: '/products/list',
+      name: 'products.list',
+      component: () => import('./views/Products/ProductsList.vue'),
     },
 
   ],

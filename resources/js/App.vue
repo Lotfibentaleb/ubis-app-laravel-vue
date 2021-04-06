@@ -31,6 +31,20 @@ export default {
             label: 'Dashboard'
           }
         ],
+        'Production',
+        [
+          {
+            to: '/production/index',
+            label: 'Current production',
+            icon: 'crane',
+          },
+          {
+            to: '/products/list',
+            label: 'Products',
+            icon: 'package-variant-closed',
+          },
+
+        ],
         'Resource',
         [
           {

@@ -1,7 +1,7 @@
 <template>
   <modal-box :is-active.sync="isActive" @confirm="confirm" @cancel="cancel" confirm-type="is-danger" confirm-label="Delete">
-    <p>This will permanently delete <b>{{ trashSubject }}</b></p>
-    <p>Action could not be undone</p>
+    <p>Dauerhaftes Löschen von <b>{{ trashSubject }}</b>?</p>
+    <p>Diese Aktion kann nicht rückgängig gemacht werden</p>
   </modal-box>
 </template>
 

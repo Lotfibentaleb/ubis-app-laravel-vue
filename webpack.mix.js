@@ -20,6 +20,8 @@ mix
     '@/components': '/resources/js/components',
   })
   .js('resources/js/app.js', 'public/js')
+  .js('resources/js/registrationapp.js', 'public/js')
+  .js('resources/js/productsearchapp.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
   .styles([
     'node_modules/@mdi/font/css/materialdesignicons.css',
