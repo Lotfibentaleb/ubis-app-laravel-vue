@@ -72,7 +72,7 @@ class ProductsListController extends Controller
             'Content-Type' => 'application/json'
             ]
         ];
-        
+
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
@@ -136,10 +136,10 @@ class ProductsListController extends Controller
             'production_data_count' => 'production_data_count',
             'production_order_nr' => 'production_order_nr',
             'created_at' => 'created_at',
-            'new_date' => 'new_date',
+//            'updated_at' => 'updated_at',
+            'tested_at' => 'tested_at',
             'data.gamma' => 'data.gamma',
             'data.ambient_temp' => 'data.ambient_temp',
-            'updated_at' => 'Aktualisiert',
             'data.heating_temp' => 'data.heating_temp',
             'data.saturation_red' => 'data.saturation_red',
             'data.wavelength_red' => 'data.wavelength_red',
