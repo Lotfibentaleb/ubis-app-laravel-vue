@@ -138,6 +138,7 @@ class ProductsListController extends Controller
             'created_at' => 'created_at',
 //            'updated_at' => 'updated_at',
             'tested_at' => 'tested_at',
+            'daisy.state' => 'daisy.state',
             'data.gamma' => 'data.gamma',
             'data.ambient_temp' => 'data.ambient_temp',
             'data.heating_temp' => 'data.heating_temp',
