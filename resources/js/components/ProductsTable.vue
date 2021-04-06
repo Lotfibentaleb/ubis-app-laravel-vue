@@ -3,8 +3,8 @@
     <modal-trash-box :is-active="isModalActive" :trash-subject="trashObjectName" @confirm="trashConfirm" @cancel="trashCancel"/>
     <b-field grouped group-multiline>
           <b-button type="is-info" disabled>Anzahl Einträge: {{this.total}}</b-button>
-          <a href="productlist/excel?enhanced=0&size=10&sort_by=.asc&filter={}"><b-button class="btn excel-export">Download Excel</b-button></a>
-          <a href="productlist/enhancedExcel?enhanced=1&size=10&sort_by=.asc&filter={}"><b-button class="btn excel-export">Enhanced Excel</b-button></a>
+          <a :href="this.filterGeneralUrl"><b-button class="btn excel-export">Download Excel</b-button></a>
+          <a :href="this.filterEnhancedUrl"><b-button class="btn excel-export">Enhanced Excel</b-button></a>
     </b-field>
 
     <b-table
@@ -140,6 +140,8 @@ export default {
       page: 1,
       total: 0,
       filterValues: '{}',
+      filterGeneralUrl: '',
+      filterEnhancedUrl: '',
       excelProducts: [],
       jsonFields: {
         'Artikel-Nr.': 'st_article_nr',
@@ -167,6 +169,7 @@ export default {
   },
   created () {
     this.getData()
+    this.getFilteringURL ()
   },
   methods: {
     onPageChange(page) {
@@ -183,6 +186,7 @@ export default {
       this.filterValues = '';
       this.filterValues = encodeURIComponent(JSON.stringify(filter));
       this.getData()
+      this.getFilteringURL()
     }, 250),
     getData () {
       if (this.dataUrl) {
@@ -218,6 +222,26 @@ export default {
             })
           })
       }
+    },
+    getFilteringURL () {
+        if(this.dataUrl){
+            const paramsGeneral = [
+                `enhanced=0`,
+                `sort_by=${this.sortField}.${this.sortOrder}`,
+                `page=${this.page}`,
+                `filter=${this.filterValues}`
+            ].join('&')
+
+            const paramsEnhance = [
+                `enhanced=1`,
+                `sort_by=${this.sortField}.${this.sortOrder}`,
+                `page=${this.page}`,
+                `filter=${this.filterValues}`
+            ].join('&')
+
+            this.filterGeneralUrl = this.dataUrl + '/excel?' + paramsGeneral
+            this.filterEnhancedUrl = this.dataUrl + '/enhancedExcel?' + paramsEnhance
+        }
     },
     trashModal (trashObject) {
       this.trashObject = trashObject
