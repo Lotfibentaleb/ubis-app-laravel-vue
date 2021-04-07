@@ -84,5 +84,9 @@ Route::prefix('/productlist')->group(function () {
     Route::delete('/product/{id}', 'ProductsListController@destroy');
 });
 
+Route::prefix('/dashboard')->group(function () {
+    Route::get('', 'DashboardController@index');
+});
+
 
 Route::get('/cleanup', [App\Http\Controllers\CleanupController::class, 'index']);
