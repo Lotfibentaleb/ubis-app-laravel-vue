@@ -13,10 +13,14 @@ import BInput from "buefy/src/components/input/Input";
 export default {
     name: 'TableEditPanel',
     components: {BInput},
+    props: ['curValue'],
     data() {
         return {
             productOrderNr: ''
         }
+    },
+    mounted() {
+      this.productOrderNr = this.curValue
     },
     methods: {
         handleSave () {
