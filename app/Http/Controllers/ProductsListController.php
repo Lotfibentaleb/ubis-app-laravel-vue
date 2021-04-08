@@ -166,6 +166,29 @@ class ProductsListController extends Controller
         return Excel::download(new ExcelCollection($excel_data), 'enhanced_data.xlsx');
     }
 
+    public function updateProduct(Request $request, $id) {
+        $requestData = $request->all();
+        $client = new GuzzleHttp\Client();
+        $baseUrl = env('PIS_SERVICE_BASE_URL2');
+        $requestString = 'products/'.$id;
+        $options = [
+            'headers' =>[
+                'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
+                'Accept'        => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'json' => [
+                'st_article_nr' => $requestData["st_article_nr"],
+                'st_serial_nr' => $requestData["st_serial_nr"],
+                'production_order_nr' => $requestData["production_order_nr"]
+            ]
+        ];
+        $response = $client->request('PUT', $baseUrl.$requestString, $options);   // call API
+        $statusCode = $response->getStatusCode();
+        $body = json_decode($response->getBody()->getContents());
+        return response()->json($body, $statusCode);
+    }
+
     public function destroy(Request $request, $id) {
         $client = new GuzzleHttp\Client();
         $baseUrl = env('PIS_SERVICE_BASE_URL2');

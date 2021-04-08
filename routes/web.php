@@ -81,6 +81,7 @@ Route::prefix('/productlist')->group(function () {
     Route::get('/product/{id}/articleNr/{articleNr?}', 'RegistrationController@showProduct');   // get back details per product
     Route::post('/product/{id}/articleNr/{articleNr?}', 'RegistrationController@createProduct');  // get back details per article
 */
+    Route::put('/product/{id}', 'ProductsListController@updateProduct');
     Route::delete('/product/{id}', 'ProductsListController@destroy');
 });
 

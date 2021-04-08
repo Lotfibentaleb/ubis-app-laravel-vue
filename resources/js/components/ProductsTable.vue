@@ -59,17 +59,18 @@
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
-<!--
-            <router-link :to="{name:'products.edit', params: {id: props.row.id}}" class="button is-small is-primary">
-              <b-icon icon="account-edit" size="is-small"/>
-            </router-link>
--->
             <button class="button is-small is-danger" type="button" @click.prevent="trashModal(props.row)">
               <b-icon icon="trash-can" size="is-small"/>
             </button>
           </div>
         </b-table-column>
-
+        <b-table-column custom-key="actions" class="is-actions-cell">
+          <div class="buttons is-right">
+            <button class="button is-small is-success" type="button" @click.prevent="showEditPanel(props.row)">
+              <b-icon icon="google-photos" size="is-small"/>
+            </button>
+          </div>
+        </b-table-column>
       </template>
 
       <section class="section" slot="empty">
@@ -246,6 +247,9 @@ export default {
     trashModal (trashObject) {
       this.trashObject = trashObject
       this.isModalActive = true
+    },
+    showEditPanel (editableObject) {
+      this.$emit("onSettingShow", editableObject)
     },
     trashConfirm () {
       this.isModalActive = false
