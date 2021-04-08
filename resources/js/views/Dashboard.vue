@@ -1,13 +1,32 @@
 <template>
     <div>
-        <title-bar :title-stack="titleStack"/>
-        <hero-bar :has-right-visible="false">
-            Dashboard
-        </hero-bar>
+        <title-bar/>
+
+        <div class="dashboard-header">
+            <section>
+                <b-datepicker
+                    v-model="selected"
+                    :show-week-number="showWeekNumber"
+                    :locale="locale"
+                    placeholder="Click to select..."
+                    icon="calendar-today"
+                    trap-focus>
+                </b-datepicker>
+            </section>
+            <section>
+                <b-tabs type="is-toggle">
+                    <b-tab-item label="Last Week" icon="calendar-today"></b-tab-item>
+                    <b-tab-item label="Yesterday" icon="calendar-today"></b-tab-item>
+                    <b-tab-item label="Today" icon="calendar-today"></b-tab-item>
+                </b-tabs>
+            </section>
+        </div>
+
         <section class="section is-main-section">
             <tiles>
-                <card-widget class="tile is-child" type="is-primary" icon="account-multiple" :number="512" label="Clients"/>
-                <card-widget class="tile is-child" type="is-info" icon="cart-outline" :number="7770" prefix="$" label="Sales"/>
+                <card-widget class="tile is-child" type="is-primary" icon="account-multiple" :number="512" label="Articles"/>
+                <card-widget class="tile is-child" type="is-info" icon="cart-outline" :number="7770" prefix="$" label="Products"/>
+                <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
                 <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
             </tiles>
 
@@ -22,9 +41,6 @@
                 </div>
             </card-component>
 
-            <card-component title="Clients" class="has-table has-mobile-sort-spaced">
-                <clients-table-sample data-url="/clients"/>
-            </card-component>
         </section>
     </div>
 </template>
@@ -55,7 +71,10 @@
                 defaultChart: {
                     chartData: null,
                     extraOptions: chartConfig.chartOptionsMain
-                }
+                },
+                selected: new Date(),
+                showWeekNumber: false,
+                locale: undefined // Browser locale
             }
         },
         computed: {
@@ -139,3 +158,17 @@
         }
     }
 </script>
+<style>
+ .dashboard-header {
+     width: 100%;
+     height: 100px;
+     background: white;
+     display: flex;
+     justify-content: space-between;
+     padding: 30px;
+ }
+ .header-text {
+     font-size: 30px;
+     font-weight: 600;
+ }
+</style>
