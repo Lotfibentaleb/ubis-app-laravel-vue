@@ -13,7 +13,7 @@
     <section class="section is-main-section">
       <card-component class="has-table has-mobile-sort-spaced" title="Produkte" icon="account-multiple">
         <products-table data-url="/productlist" @onSettingShow="onSettingShow" :checkable="true"/>
-        <table-edit-panel v-if="isShow" :curValue="tableRowData.production_order_nr" @onSettingHide="onSettingHide" @onSettingSave="onSettingSave"/>
+        <table-edit-panel v-if="isShow" :curValue="tableRowData.production_order_nr" :isShow="isShow" @onSettingHide="onSettingHide" @onSettingSave="onSettingSave"/>
       </card-component>
 
     </section>

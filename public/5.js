@@ -350,20 +350,37 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'TableEditPanel',
   components: {
     BInput: buefy_src_components_input_Input__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  props: ['curValue'],
+  props: ['curValue', 'isShow'],
   data: function data() {
     return {
-      productOrderNr: ''
+      productOrderNr: '',
+      active: false
     };
   },
   mounted: function mounted() {
+    var _this = this;
+
     this.productOrderNr = this.curValue;
+    setTimeout(function () {
+      _this.active = true;
+    }, 50);
   },
   methods: {
     handleSave: function handleSave() {
@@ -380,7 +397,12 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     handleClose: function handleClose() {
-      this.$emit("onSettingHide", false);
+      var _this2 = this;
+
+      setTimeout(function () {
+        _this2.$emit("onSettingHide", false);
+      }, 1000);
+      this.active = false;
     }
   }
 });
@@ -524,7 +546,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.edit-panel {\n    background: #888bf1;\n    width: 300px;\n    height: 100%;\n    position: absolute;\n    right: 0;\n    overflow-y: scroll;\n}\n.card-content {\n    display: flex;\n    position: relative;\n}\n", ""]);
+exports.push([module.i, "\n.panel-layout{\n    padding: 20px 10px 20px 10px;\n}\n.edit-panel {\n    background: #ffffff;\n    width: 300px;\n    height: 100%;\n    position: absolute;\n    right: -350px;\n    transition: 1s ease;\n    box-shadow: 0px 1px 2px 4px #888888\n}\n.active {\n    right: 0px !important;\n}\n.row-panel-btn {\n    margin: 30px;\n    display: flex;\n    justify-content: space-around;\n}\n.panel-btn {\n    width: 70px;\n}\n.card-content {\n    display: flex;\n    position: relative;\n}\n", ""]);
 
 // exports
 
@@ -1037,28 +1059,68 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "edit-panel" },
+    { staticClass: "edit-panel", class: { active: _vm.active } },
     [
-      _c("label", [_vm._v("Product Order Nr")]),
-      _vm._v(" "),
-      _c("b-input", {
-        model: {
-          value: _vm.productOrderNr,
-          callback: function($$v) {
-            _vm.productOrderNr = $$v
-          },
-          expression: "productOrderNr"
-        }
-      }),
-      _vm._v(" "),
-      _c("b-button", { on: { click: _vm.handleSave } }, [_vm._v("Save")]),
-      _vm._v(" "),
-      _c("b-button", { on: { click: _vm.handleClose } }, [_vm._v("Close")])
-    ],
-    1
+      _c("div", { staticClass: "panel-layout" }, [
+        _c("div", [
+          _vm._m(0),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticStyle: { margin: "10px" } },
+            [
+              _c("b-input", {
+                model: {
+                  value: _vm.productOrderNr,
+                  callback: function($$v) {
+                    _vm.productOrderNr = $$v
+                  },
+                  expression: "productOrderNr"
+                }
+              })
+            ],
+            1
+          )
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "row-panel-btn" },
+          [
+            _c(
+              "b-button",
+              {
+                staticClass: "btn excel-export panel-btn",
+                on: { click: _vm.handleSave }
+              },
+              [_vm._v("Save")]
+            ),
+            _vm._v(" "),
+            _c(
+              "b-button",
+              {
+                staticClass: "btn excel-export panel-btn",
+                on: { click: _vm.handleClose }
+              },
+              [_vm._v("Close")]
+            )
+          ],
+          1
+        )
+      ])
+    ]
   )
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticStyle: { margin: "10px" } }, [
+      _c("label", [_vm._v("Product Order Nr")])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -1126,7 +1188,10 @@ var render = function() {
               _vm._v(" "),
               _vm.isShow
                 ? _c("table-edit-panel", {
-                    attrs: { curValue: _vm.tableRowData.production_order_nr },
+                    attrs: {
+                      curValue: _vm.tableRowData.production_order_nr,
+                      isShow: _vm.isShow
+                    },
                     on: {
                       onSettingHide: _vm.onSettingHide,
                       onSettingSave: _vm.onSettingSave

@@ -1,9 +1,20 @@
 <template>
-    <div class="edit-panel">
-        <label>Product Order Nr</label>
-        <b-input v-model="productOrderNr"></b-input>
-        <b-button @click="handleSave">Save</b-button>
-        <b-button @click="handleClose">Close</b-button>
+
+    <div class="edit-panel" v-bind:class="{'active': active}">
+        <div class="panel-layout">
+            <div>
+                <div style="margin: 10px">
+                    <label>Product Order Nr</label>
+                </div>
+                <div style="margin: 10px">
+                    <b-input v-model="productOrderNr"></b-input>
+                </div>
+            </div>
+            <div class="row-panel-btn">
+                <b-button class="btn excel-export panel-btn" @click="handleSave">Save</b-button>
+                <b-button class="btn excel-export panel-btn" @click="handleClose">Close</b-button>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -13,14 +24,18 @@ import BInput from "buefy/src/components/input/Input";
 export default {
     name: 'TableEditPanel',
     components: {BInput},
-    props: ['curValue'],
+    props: ['curValue', 'isShow'],
     data() {
         return {
-            productOrderNr: ''
+            productOrderNr: '',
+            active: false
         }
     },
     mounted() {
-      this.productOrderNr = this.curValue
+      this.productOrderNr = this.curValue;
+      setTimeout(()=>{
+          this.active = true;
+      }, 50);
     },
     methods: {
         handleSave () {
@@ -37,19 +52,37 @@ export default {
             }
         },
         handleClose () {
-            this.$emit("onSettingHide", false)
+            setTimeout(()=>{
+                this.$emit("onSettingHide", false)
+            }, 1000);
+            this.active = false;
         }
     }
 }
 </script>
 <style>
+    .panel-layout{
+        padding: 20px 10px 20px 10px;
+    }
     .edit-panel {
-        background: #888bf1;
+        background: #ffffff;
         width: 300px;
         height: 100%;
         position: absolute;
-        right: 0;
-        overflow-y: scroll;
+        right: -350px;
+        transition: 1s ease;
+        box-shadow: 0px 1px 2px 4px #888888
+    }
+    .active {
+        right: 0px !important;
+    }
+    .row-panel-btn {
+        margin: 30px;
+        display: flex;
+        justify-content: space-around;
+    }
+    .panel-btn {
+        width: 70px;
     }
     .card-content {
         display: flex;
