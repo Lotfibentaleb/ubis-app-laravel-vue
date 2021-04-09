@@ -1,159 +1,264 @@
 <template>
-    <div>
-        <title-bar/>
+    <!--<div class="dashboard-background">-->
+        <!--<div class="dashboard-content-left">-->
+            <!--<div class="article-header">-->
+                <!--<h1>Articles in production</h1>-->
+            <!--</div>-->
 
-        <div class="dashboard-header">
-            <section>
-                <b-datepicker
-                    v-model="selected"
-                    :show-week-number="showWeekNumber"
-                    :locale="locale"
-                    placeholder="Click to select..."
-                    icon="calendar-today"
-                    trap-focus>
-                </b-datepicker>
-            </section>
-            <section>
-                <b-tabs type="is-toggle">
-                    <b-tab-item label="Last Week" icon="calendar-today"></b-tab-item>
-                    <b-tab-item label="Yesterday" icon="calendar-today"></b-tab-item>
-                    <b-tab-item label="Today" icon="calendar-today"></b-tab-item>
-                </b-tabs>
-            </section>
-        </div>
+            <!--<div class="article-card blue-card">-->
+                <!--<h1 class="p-serial-number-text">80000081C1</h1>-->
+                <!--<h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>-->
+            <!--</div>-->
 
-        <section class="section is-main-section">
-            <tiles>
-                <card-widget class="tile is-child" type="is-primary" icon="account-multiple" :number="512" label="Articles"/>
-                <card-widget class="tile is-child" type="is-info" icon="cart-outline" :number="7770" prefix="$" label="Products"/>
-                <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
-                <card-widget class="tile is-child" type="is-success" icon="chart-timeline-variant" :number="256" suffix="%" label="Performance"/>
-            </tiles>
+            <!--<div class="article-card yellow-card">-->
+                <!--<h1 class="p-serial-number-text">80000101A1</h1>-->
+                <!--<h1>SCON Assembly (B1)</h1>-->
+            <!--</div>-->
 
-            <card-component title="Performance" @header-icon-click="fillChartData" icon="finance" header-icon="reload">
-                <div v-if="defaultChart.chartData" class="chart-area">
-                    <line-chart style="height: 100%"
-                                ref="bigChart"
-                                chart-id="big-line-chart"
-                                :chart-data="defaultChart.chartData"
-                                :extra-options="defaultChart.extraOptions">
-                    </line-chart>
+            <!--<div class="article-card green-card">-->
+                <!--<h1 class="p-serial-number-text">80000114B2</h1>-->
+                <!--<h1>10,25 inch Display cluster w/o  <br> coating</h1>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="dashboard-content-right">-->
+            <!--<div class="date-format">-->
+                <!--<h1><b>09.04.2021 14:01</b></h1>-->
+                <!--<div class="diagram">-->
+                    <!--<apexchart width="600" type="bar" :options="options" :series="series"></apexchart>-->
+                    <!--<apexchart width="600" type="bar" :options="options" :series="series"></apexchart>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div class="dashboard-layout">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1><b>{{dashboard_time}}</b></h1>
+            </div>
+            <div class="dashboard-carousel-section">
+                <div class="carousel-title">
+                    <h1>Articles in production</h1>
                 </div>
-            </card-component>
-
-        </section>
+                <div class="carousel-items">
+                    <div class="article-card blue-card">
+                        <h1 class="p-serial-number-text"><b>80000081C1</b></h1>
+                        <h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>
+                    </div>
+                    <div class="article-card yellow-card">
+                        <h1 class="p-serial-number-text"><b>80000101A1</b></h1>
+                        <h1>SCON Assembly (B1)</h1>
+                    </div>
+                    <div class="article-card green-card">
+                        <h1 class="p-serial-number-text"><b>80000114B2</b></h1>
+                        <h1>10,25 inch Display cluster w/o  <br> coating</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-chart-section">
+                <div class="left-diagram">
+                    <apexchart width="95%" type="bar" :options="options" :series="series_left"></apexchart>
+                </div>
+                <div class="right-diagram">
+                    <apexchart type="line" height="460" :options="chartOptions" :series="series_right"></apexchart>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
     // @ is an alias to /src
-    import * as chartConfig from '@/components/Charts/chart.config'
-    import TitleBar from '@/components/TitleBar'
-    import HeroBar from '@/components/HeroBar'
-    import Tiles from '@/components/Tiles'
-    import CardWidget from '@/components/CardWidget'
-    import CardComponent from '@/components/CardComponent'
-    import LineChart from '@/components/Charts/LineChart'
-    import ClientsTableSample from '@/components/ClientsTableSample'
+    import VueSlickCarousel from 'vue-slick-carousel'
+    import 'vue-slick-carousel/dist/vue-slick-carousel.css'
+    // optional style for arrows & dots
+    import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
+
     export default {
-        name: 'home',
+        name: 'dashboard',
         components: {
-            ClientsTableSample,
-            LineChart,
-            CardComponent,
-            CardWidget,
-            Tiles,
-            HeroBar,
-            TitleBar
+            VueSlickCarousel
         },
         data () {
             return {
-                defaultChart: {
-                    chartData: null,
-                    extraOptions: chartConfig.chartOptionsMain
+                dashboard_time: '',
+                options: {
+                    chart: {
+                        id: 'vuechart-example'
+                    },
+                    xaxis: {
+                        categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+                    }
                 },
-                selected: new Date(),
-                showWeekNumber: false,
-                locale: undefined // Browser locale
+                series_left: [
+                    {
+                        name: '80000081C1',
+                        data: [1, 2, 4, 5, 100, 28, 38, 46]
+                    },
+                    {
+                        name: '80000101A1',
+                        data: [200, 29, 37, 36, 44, 45, 50, 29]
+                    },
+                    {
+                        name: '80000114B2',
+                        data: [180, 19, 17, 36, 44, 45, 20, 38]
+                    },
+                ],
+                yaxis: [
+                    {
+                        seriesName: '80000081C1'
+                    },
+                    {
+                        seriesName: '80000114B2'
+                    },
+                    {
+                        seriesName: '80000101A1'
+                    }
+                ],
+
+
+
+                series_right: [{
+                    name: 'Income',
+                    type: 'column',
+                    data: [140, 20, 25, 15, 25, 28, 38, 180]
+                }, {
+                    name: 'Cashflow',
+                    type: 'column',
+                    data: [11, 30, 31, 40, 41, 49, 65, 85]
+                }, {
+                    name: 'Revenue',
+                    type: 'line',
+                    data: [20, 29, 37, 36, 44, 45, 50, 58]
+                }],
+                chartOptions: {
+                    chart: {
+                        height: 450,
+                        type: 'line',
+                        stacked: false
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        width: [1, 1, 1, 4]
+                    },
+                    title: {
+                        text: '',
+                        align: 'left',
+                        offsetX: 110
+                    },
+                    xaxis: {
+                        categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr'],
+                    },
+                    yaxis: [
+                        {
+                            axisTicks: {
+                                show: true,
+                            },
+                            axisBorder: {
+                                show: true,
+                                color: '#008FFB'
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#008FFB',
+                                }
+                            },
+                            title: {
+                                text: "",
+                                style: {
+                                    color: '#008FFB',
+                                }
+                            },
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        {
+                            seriesName: 'Income',
+                            opposite: true,
+                            axisTicks: {
+                                show: true,
+                            },
+                            axisBorder: {
+                                show: true,
+                                color: '#00E396'
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#00E396',
+                                }
+                            },
+                            title: {
+                                text: "",
+                                style: {
+                                    color: '#00E396',
+                                }
+                            },
+                        },
+                        {
+                            seriesName: 'Revenue',
+                            opposite: true,
+                            axisTicks: {
+                                show: true,
+                            },
+                            axisBorder: {
+                                show: true,
+                                color: '#FEB019'
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#FEB019',
+                                },
+                            },
+                            title: {
+                                text: "",
+                                style: {
+                                    color: '#FEB019',
+                                }
+                            }
+                        },
+                    ],
+                    tooltip: {
+                        fixed: {
+                            enabled: true,
+                            position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
+                            offsetY: 30,
+                            offsetX: 60
+                        },
+                    },
+                    legend: {
+                        horizontalAlign: 'left',
+                        offsetX: 40
+                    }
+                },
+
             }
         },
         computed: {
-            titleStack () {
-                return [
-                    'Admin',
-                    'Dashboard'
-                ]
-            }
+
         },
         mounted () {
-            this.fillChartData()
-
-            this.$buefy.snackbar.open({
-                message: 'Welcome back',
-                queue: false
-            })
+            function showTime() {
+                this.dashboard_time = this.calcTime();
+            }
+            setInterval(showTime.bind(this), 1000);
         },
         methods: {
-            randomChartData (n) {
-                let data = []
-
-                for (let i = 0; i < n; i++) {
-                    data.push(Math.round(Math.random() * 200))
-                }
-
-                return data
-            },
-            fillChartData () {
-                this.defaultChart.chartData = {
-                    datasets: [
-                        {
-                            fill: false,
-                            borderColor: chartConfig.chartColors.default.primary,
-                            borderWidth: 2,
-                            borderDash: [],
-                            borderDashOffset: 0.0,
-                            pointBackgroundColor: chartConfig.chartColors.default.primary,
-                            pointBorderColor: 'rgba(255,255,255,0)',
-                            pointHoverBackgroundColor: chartConfig.chartColors.default.primary,
-                            pointBorderWidth: 20,
-                            pointHoverRadius: 4,
-                            pointHoverBorderWidth: 15,
-                            pointRadius: 4,
-                            data: this.randomChartData(9)
-                        },
-                        {
-                            fill: false,
-                            borderColor: chartConfig.chartColors.default.info,
-                            borderWidth: 2,
-                            borderDash: [],
-                            borderDashOffset: 0.0,
-                            pointBackgroundColor: chartConfig.chartColors.default.info,
-                            pointBorderColor: 'rgba(255,255,255,0)',
-                            pointHoverBackgroundColor: chartConfig.chartColors.default.info,
-                            pointBorderWidth: 20,
-                            pointHoverRadius: 4,
-                            pointHoverBorderWidth: 15,
-                            pointRadius: 4,
-                            data: this.randomChartData(9)
-                        },
-                        {
-                            fill: false,
-                            borderColor: chartConfig.chartColors.default.danger,
-                            borderWidth: 2,
-                            borderDash: [],
-                            borderDashOffset: 0.0,
-                            pointBackgroundColor: chartConfig.chartColors.default.danger,
-                            pointBorderColor: 'rgba(255,255,255,0)',
-                            pointHoverBackgroundColor: chartConfig.chartColors.default.danger,
-                            pointBorderWidth: 20,
-                            pointHoverRadius: 4,
-                            pointHoverBorderWidth: 15,
-                            pointRadius: 4,
-                            data: this.randomChartData(9)
-                        }
-                    ],
-                    labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09']
-                }
+            calcTime() {
+                let d = new Date();
+                let yyyy = d.getFullYear();
+                let mm = d.getMonth() + 1;
+                let dd = d.getDate()
+                let hr = d.getHours();
+                let min = d.getMinutes();
+                let second = d.getSeconds();
+                mm = mm < 10 ? ('0' + mm) : mm;
+                dd = dd < 10 ? ('0' + dd) : dd;
+                hr = hr < 10 ? ('0' + hr) : hr;
+                min = min < 10 ? ('0' + min) : min;
+                second = second < 10 ? ('0' + second) : second;
+                return dd + '.' + mm + '.' + yyyy + '  ' + hr + ':' + min + ':' + second;
             }
         }
     }
@@ -171,4 +276,5 @@
      font-size: 30px;
      font-weight: 600;
  }
+
 </style>

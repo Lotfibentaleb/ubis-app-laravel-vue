@@ -4,6 +4,7 @@ require('./bootstrap');
 /* Core */
 import Vue from 'vue'
 import Buefy from 'buefy'
+import VueApexCharts from 'vue-apexcharts'
 
 /* Router & Store */
 import router from './dashboardrouter'
@@ -17,7 +18,8 @@ Vue.config.productionTip = false
 
 /* Main component */
 Vue.component('DashboardApp', App)
-
+Vue.use(VueApexCharts)
+Vue.component('apexchart', VueApexCharts)
 /* Buefy */
 Vue.use(Buefy)
 

@@ -1,0 +1,144 @@
+//.dashboard-background{
+//  background: white;
+//  width: 100%;
+//  height: 100vh;
+//  display: flex;
+//
+//  .dashboard-content-left{
+//    width: 20%;
+//    background: white;
+//    text-align: -webkit-center;
+//    .article-header{
+//      margin: 40px;
+//      font-size: 21px;
+//    }
+//    .article-card{
+//      width: 90%;
+//      height: 90px;
+//      border-radius: 20px;
+//      margin-top: 15px;
+//      padding-top: 10px;
+//      color: white;
+//      &.blue-card{
+//        background: #277fe2;
+//        .p-serial-number-text{
+//          font-size: 21px;
+//        }
+//      }
+//      &.yellow-card{
+//        background: #f9681f;
+//        .p-serial-number-text{
+//          font-size: 21px;
+//        }
+//      }
+//      &.green-card{
+//        background: #3fcc45;
+//        .p-serial-number-text{
+//          font-size: 21px;
+//        }
+//      }
+//    }
+//  }
+//  .dashboard-content-right{
+//    width: 80%;
+//    background: wheat;
+//    .date-format{
+//      width: 100%;
+//      height: 70px;
+//      color: black;
+//      text-align: right;
+//      padding: 20px;
+//      & h1{
+//        font-size: 30px;
+//      }
+//      .diagram{
+//        width:100%;
+//        background: #009e6c;
+//        height: 42vh;
+//        margin-top: 25px;
+//      }
+//    }
+//  }
+//
+//}
+//
+
+.dashboard-layout{
+    background: white;
+    width: 100%;
+    height: 1000px;
+    .dashboard-container{
+        padding-left: 50px;
+        padding-right: 50px;
+        .dashboard-header{
+            width: 100%;
+            height: 100px;
+            //background: grey;
+            color: black;
+            text-align: right;
+            padding-right: 20px;
+            & h1{
+                width: 100%;
+                font-size: 35px;
+            }
+        }
+        .dashboard-carousel-section{
+            width: 100%;
+            height: 300px;
+            //background: #ffdd57;
+            .carousel-title{
+                text-align: center;
+                padding-top: 25px;
+                & h1{
+                    width: 100%;
+                    font-size: 21px;
+                }
+            }
+            .carousel-items{
+                display: flex;
+                justify-content: space-around;
+                .article-card{
+                    width: 330px;
+                    height: 110px;
+                    border-radius: 20px;
+                    margin-top: 30px;
+                    padding-top: 15px;
+                    color: white;
+                    text-align: center;
+                    &.blue-card{
+                        background: #277fe2;
+                        .p-serial-number-text{
+                          font-size: 21px;
+                        }
+                    }
+                    &.yellow-card{
+                        background: #f9681f;
+                        .p-serial-number-text{
+                          font-size: 21px;
+                        }
+                    }
+                    &.green-card {
+                        background: #3fcc45;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                }
+            }
+        }
+        .dashboard-chart-section{
+            width: 100%;
+            height: 600px;
+            display: flex;
+            justify-content: space-between;
+            .left-diagram{
+                width: 44%;
+                height: 100%;
+            }
+            .right-diagram{
+                width: 47%;
+                height: 100%;
+            }
+        }
+    }
+}
