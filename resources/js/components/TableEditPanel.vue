@@ -1,6 +1,6 @@
 <template>
 
-    <div class="edit-panel" v-bind:class="{'active': active}">
+    <div class="edit-panel" v-bind:class="{'active-edit-panel': active}">
         <div class="panel-layout">
             <div>
                 <div style="margin: 10px">
@@ -60,32 +60,3 @@ export default {
     }
 }
 </script>
-<style>
-    .panel-layout{
-        padding: 20px 10px 20px 10px;
-    }
-    .edit-panel {
-        background: #ffffff;
-        width: 300px;
-        height: 100%;
-        position: absolute;
-        right: -350px;
-        transition: 1s ease;
-        box-shadow: 0px 1px 2px 4px #888888
-    }
-    .active {
-        right: 0px !important;
-    }
-    .row-panel-btn {
-        margin: 30px;
-        display: flex;
-        justify-content: space-around;
-    }
-    .panel-btn {
-        width: 70px;
-    }
-    .card-content {
-        display: flex;
-        position: relative;
-    }
-</style>
