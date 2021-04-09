@@ -18824,6 +18824,39 @@ section.hero.is-hero-bar .hero-body .button.is-hero-button:hover {
   color: #7a7a7a;
 }
 
+.panel-layout {
+  padding: 20px 10px 20px 10px;
+}
+
+.edit-panel {
+  background: #ffffff;
+  width: 300px;
+  height: 100%;
+  position: absolute;
+  right: -350px;
+  transition: 1s ease;
+  box-shadow: 0px 1px 2px 4px #888888;
+}
+
+.active-edit-panel {
+  right: 0px !important;
+}
+
+.row-panel-btn {
+  margin: 30px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.panel-btn {
+  width: 70px;
+}
+
+.product-table-panel .card-content {
+  display: flex;
+  position: relative;
+}
+
 table.table thead th {
   border-bottom-width: 1px;
 }
@@ -19074,39 +19107,6 @@ footer.footer .logo img {
   background-color: #ffdd57;
   border-radius: 290486px;
 }
-
-
-/* TableEditPanel component */
-.panel-layout{
-  padding: 20px 10px 20px 10px;
-}
-.edit-panel {
-  background: #ffffff;
-  width: 300px;
-  height: 100%;
-  position: absolute;
-  right: -350px;
-  transition: 1s ease;
-  box-shadow: 0px 1px 2px 4px #888888
-}
-.active-edit-panel {
-  right: 0px !important;
-}
-.row-panel-btn {
-  margin: 30px;
-  display: flex;
-  justify-content: space-around;
-}
-.panel-btn {
-  width: 70px;
-}
-
-.product-table-panel .card-content {
-  display: flex;
-  position: relative;
-}
-
-
 
 /* Animate.css custom build (just selected animations to minimize bundle size) */
 
