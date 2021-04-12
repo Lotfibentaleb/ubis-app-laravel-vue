@@ -2009,13 +2009,23 @@ __webpack_require__.r(__webpack_exports__);
       second_diagram_datas: [],
       article_card_color: ['blue-card', 'yellow-card', 'green-card'],
       category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      options: {
+      first_diagram_options: {
         colors: ['#277fe2', '#f9681f', '#3fcc45'],
         chart: {
           id: 'left_diagram'
         },
         xaxis: {
           categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+        },
+        plotOptions: {
+          bar: {
+            dataLabels: {
+              position: 'top',
+              maxItems: 100,
+              hideOverflowingLabels: true,
+              orientation: 'horizontal'
+            }
+          }
         }
       },
       series_left: [{
@@ -2027,13 +2037,6 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         name: '80000114B2',
         data: []
-      }],
-      yaxis: [{
-        seriesName: '80000081C1'
-      }, {
-        seriesName: '80000114B2'
-      }, {
-        seriesName: '80000101A1'
       }],
       series_right: [{
         name: 'In Production',
@@ -2052,7 +2055,7 @@ __webpack_require__.r(__webpack_exports__);
         type: 'line',
         data: []
       }],
-      chartOptions: {
+      second_diagram_options: {
         colors: ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
         chart: {
           height: 450,
@@ -2064,7 +2067,7 @@ __webpack_require__.r(__webpack_exports__);
           enabled: false
         },
         stroke: {
-          width: [1, 1, 1, 4]
+          width: [1, 1, 1, 2]
         },
         title: {
           text: '',
@@ -2072,7 +2075,7 @@ __webpack_require__.r(__webpack_exports__);
           offsetX: 110
         },
         xaxis: {
-          categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+          categories: []
         },
         yaxis: [{
           axisTicks: {
@@ -2147,10 +2150,6 @@ __webpack_require__.r(__webpack_exports__);
             offsetY: 30,
             offsetX: 60
           }
-        },
-        legend: {
-          horizontalAlign: 'left',
-          offsetX: 40
         }
       }
     };
@@ -2164,6 +2163,7 @@ __webpack_require__.r(__webpack_exports__);
     }
 
     setInterval(showTime.bind(this), 1000);
+    setInterval(this.fetchInfo, 24000);
   },
   methods: {
     fetchInfo: function fetchInfo() {
@@ -2179,20 +2179,20 @@ __webpack_require__.r(__webpack_exports__);
         _this.article_list = r.data.article_list;
         _this.first_diagram_datas = r.data.first_diagram_datas;
         _this.second_diagram_datas = r.data.second_diagram_datas;
-        _this.options.xaxis.categories = [];
-        _this.options.xaxis.categories = _this.getCategories(r.data.categories);
-        _this.chartOptions.xaxis.categories = [];
-        _this.chartOptions.xaxis.categories = _this.getCategories(r.data.categories);
+        _this.first_diagram_options.xaxis.categories = [];
+        _this.first_diagram_options.xaxis.categories = _this.getCategories(r.data.categories);
+        _this.second_diagram_options.xaxis.categories = [];
+        _this.second_diagram_options.xaxis.categories = _this.getCategories(r.data.categories);
 
-        _this.$refs.left_diagram.updateOptions(_this.options);
+        _this.$refs.left_diagram.updateOptions(_this.first_diagram_options);
 
-        _this.$refs.right_diagram.updateOptions(_this.chartOptions);
+        _this.$refs.right_diagram.updateOptions(_this.second_diagram_options);
 
         _this.series_left = [];
         _this.yaxis = [];
         _this.series_left = r.data.first_diagram_datas;
         _this.series_right = r.data.second_diagram_datas;
-        var infoMessage = "fetching data successfully";
+        var infoMessage = "fetched the updated data successfully.";
 
         _this.$buefy.snackbar.open({
           message: infoMessage,
@@ -19105,7 +19105,7 @@ var render = function() {
               attrs: {
                 width: "95%",
                 type: "bar",
-                options: _vm.options,
+                options: _vm.first_diagram_options,
                 series: _vm.series_left
               }
             })
@@ -19122,7 +19122,7 @@ var render = function() {
               attrs: {
                 type: "line",
                 height: "460",
-                options: _vm.chartOptions,
+                options: _vm.second_diagram_options,
                 series: _vm.series_right
               }
             })

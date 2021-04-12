@@ -18,10 +18,10 @@
             </div>
             <div class="dashboard-chart-section">
                 <div class="left-diagram">
-                    <apexchart ref="left_diagram" width="95%" type="bar" :options="options" :series="series_left"></apexchart>
+                    <apexchart ref="left_diagram" width="95%" type="bar" :options="first_diagram_options" :series="series_left"></apexchart>
                 </div>
                 <div class="right-diagram">
-                    <apexchart ref="right_diagram" type="line" height="460" :options="chartOptions" :series="series_right"></apexchart>
+                    <apexchart ref="right_diagram" type="line" height="460" :options="second_diagram_options" :series="series_right"></apexchart>
                 </div>
             </div>
         </div>
@@ -48,13 +48,23 @@
                 second_diagram_datas: [],
                 article_card_color: ['blue-card', 'yellow-card', 'green-card'],
                 category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                options: {
+                first_diagram_options: {
                     colors : ['#277fe2', '#f9681f', '#3fcc45'],
                     chart: {
                         id: 'left_diagram'
                     },
                     xaxis: {
                         categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                position: 'top',
+                                maxItems: 100,
+                                hideOverflowingLabels: true,
+                                orientation: 'horizontal'
+                            }
+                        }
                     }
                 },
                 series_left: [
@@ -70,17 +80,6 @@
                         name: '80000114B2',
                         data: []
                     },
-                ],
-                yaxis: [
-                    {
-                        seriesName: '80000081C1'
-                    },
-                    {
-                        seriesName: '80000114B2'
-                    },
-                    {
-                        seriesName: '80000101A1'
-                    }
                 ],
 
                 series_right: [{
@@ -100,7 +99,8 @@
                     type: 'line',
                     data: []
                 }],
-                chartOptions: {
+
+                second_diagram_options: {
                     colors : ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
                     chart: {
                         height: 450,
@@ -112,7 +112,7 @@
                         enabled: false
                     },
                     stroke: {
-                        width: [1, 1, 1, 4]
+                        width: [1, 1, 1, 2]
                     },
                     title: {
                         text: '',
@@ -120,7 +120,7 @@
                         offsetX: 110
                     },
                     xaxis: {
-                        categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr'],
+                        categories: [],
                     },
                     yaxis: [
                         {
@@ -198,10 +198,6 @@
                             offsetY: 30,
                             offsetX: 60
                         },
-                    },
-                    legend: {
-                        horizontalAlign: 'left',
-                        offsetX: 40
                     }
                 },
 
@@ -216,6 +212,7 @@
                 this.dashboard_time = this.calcTime()
             }
             setInterval(showTime.bind(this), 1000)
+            setInterval(this.fetchInfo, 24000)
         },
         methods: {
             fetchInfo() {
@@ -229,17 +226,17 @@
                     this.article_list = r.data.article_list
                     this.first_diagram_datas = r.data.first_diagram_datas
                     this.second_diagram_datas = r.data.second_diagram_datas
-                    this.options.xaxis.categories = []
-                    this.options.xaxis.categories = this.getCategories(r.data.categories)
-                    this.chartOptions.xaxis.categories = []
-                    this.chartOptions.xaxis.categories = this.getCategories(r.data.categories)
-                    this.$refs.left_diagram.updateOptions(this.options);
-                    this.$refs.right_diagram.updateOptions(this.chartOptions);
+                    this.first_diagram_options.xaxis.categories = []
+                    this.first_diagram_options.xaxis.categories = this.getCategories(r.data.categories)
+                    this.second_diagram_options.xaxis.categories = []
+                    this.second_diagram_options.xaxis.categories = this.getCategories(r.data.categories)
+                    this.$refs.left_diagram.updateOptions(this.first_diagram_options);
+                    this.$refs.right_diagram.updateOptions(this.second_diagram_options);
                     this.series_left = []
                     this.yaxis = []
                     this.series_left = r.data.first_diagram_datas
                     this.series_right = r.data.second_diagram_datas
-                    let infoMessage = `fetching data successfully`
+                    let infoMessage = `fetched the updated data successfully.`
                     this.$buefy.snackbar.open({
                         message: infoMessage,
                         queue: false
