@@ -10,10 +10,15 @@
                     <h1><b>Articles in production</b></h1>
                 </div>
                 <div class="carousel-items">
-                    <div v-for="(article, index) in article_list" class="article-card blue-card" v-bind:class="article_card_color[index]">
-                        <h1 class="p-serial-number-text"><b>{{article.st_article_nr}}</b></h1>
-                        <h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>
-                    </div>
+                    <carousel :per-page="3" :navigate-to="0" :mouse-drag="false" :autoplay="true" :loop="true"
+                              :speed="4000" :autoplayTimeout="8000" :autoplayDirection="forward">
+                        <slide v-for="(article, index) in article_list" :key="'player-list-'+index">
+                            <div class="article-card blue-card" v-bind:class="article_card_color[index]">
+                                <h1 class="p-serial-number-text"><b>{{article.st_article_nr}}</b></h1>
+                                <h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>
+                            </div>
+                        </slide>
+                    </carousel>
                 </div>
             </div>
             <div class="dashboard-chart-section">
@@ -29,19 +34,17 @@
 </template>
 
 <script>
-    // @ is an alias to /src
-    import VueSlickCarousel from 'vue-slick-carousel'
-    import 'vue-slick-carousel/dist/vue-slick-carousel.css'
-    // optional style for arrows & dots
-    import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
+    import { Carousel, Slide } from 'vue-carousel'
 
     export default {
         name: 'dashboard',
         components: {
-            VueSlickCarousel
+            Carousel,
+            Slide
         },
         data () {
             return {
+                autoPlay: true,
                 dashboard_time: '',
                 article_list: [],
                 first_diagram_datas: [],

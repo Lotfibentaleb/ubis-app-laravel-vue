@@ -5,6 +5,7 @@ require('./bootstrap');
 import Vue from 'vue'
 import Buefy from 'buefy'
 import VueApexCharts from 'vue-apexcharts'
+import VueCarousel from 'vue-carousel'
 
 /* Router & Store */
 import router from './dashboardrouter'
@@ -19,6 +20,7 @@ Vue.config.productionTip = false
 /* Main component */
 Vue.component('DashboardApp', App)
 Vue.use(VueApexCharts)
+Vue.use(VueCarousel)
 Vue.component('apexchart', VueApexCharts)
 /* Buefy */
 Vue.use(Buefy)

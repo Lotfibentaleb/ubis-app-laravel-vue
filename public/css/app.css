@@ -19148,9 +19148,8 @@ footer.footer .logo img {
   font-size: 30px;
 }
 
-.dashboard-layout .dashboard-container .dashboard-carousel-section .carousel-items {
-  display: flex;
-  justify-content: space-around;
+.dashboard-layout .dashboard-container .dashboard-carousel-section .carousel-items .VueCarousel .VueCarousel-wrapper {
+  text-align: -webkit-center;
 }
 
 .dashboard-layout .dashboard-container .dashboard-carousel-section .carousel-items .article-card {

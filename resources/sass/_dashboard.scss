@@ -29,8 +29,11 @@
                 }
             }
             .carousel-items{
-                display: flex;
-                justify-content: space-around;
+                .VueCarousel{
+                    .VueCarousel-wrapper{
+                        text-align: -webkit-center;
+                    }
+                }
                 .article-card{
                     width: 330px;
                     height: 110px;
