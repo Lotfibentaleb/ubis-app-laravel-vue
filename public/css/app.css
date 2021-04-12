@@ -19129,6 +19129,16 @@ footer.footer .logo img {
   padding: 30px;
 }
 
+.dashboard-layout .dashboard-container .dashboard-header .date-time {
+  position: relative;
+}
+
+.dashboard-layout .dashboard-container .dashboard-header .date-time .date-time-picker {
+  position: absolute;
+  left: 0;
+  top: 10px;
+}
+
 .dashboard-layout .dashboard-container .dashboard-header h1 {
   font-size: 40px;
 }

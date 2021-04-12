@@ -10,12 +10,12 @@
                     <h1><b>Articles in production</b></h1>
                 </div>
                 <div class="carousel-items">
-                    <carousel :per-page="3" :navigate-to="0" :mouse-drag="false" :autoplay="true" :loop="true"
-                              :speed="4000" :autoplayTimeout="8000" :autoplayDirection="forward">
-                        <slide v-for="(article, index) in article_list" :key="'player-list-'+index">
+                    <carousel :per-page="carouselItemCountsPerPage" :navigate-to="0" :mouse-drag="false" :autoplay="true" :loop="true"
+                              :speed="4000" :autoplayTimeout="8000">
+                        <slide v-for="(article, index) in article_list" :key="index">
                             <div class="article-card blue-card" v-bind:class="article_card_color[index]">
-                                <h1 class="p-serial-number-text"><b>{{article.st_article_nr}}</b></h1>
-                                <h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>
+                                <h1 class="p-serial-number-text"><b>{{article.articleNumber}}</b></h1>
+                                <h1>{{article.name}}</h1>
                             </div>
                         </slide>
                     </carousel>
@@ -23,10 +23,17 @@
             </div>
             <div class="dashboard-chart-section">
                 <div class="left-diagram">
-                    <apexchart ref="left_diagram" width="95%" type="bar" :options="first_diagram_options" :series="series_left"></apexchart>
+                    <apexchart ref="left_diagram" width="95%" type="bar"
+                               :options="diagram_production_data_per_day_options"
+                               :series="diagram_production_data_per_day_series">
+                    </apexchart>
                 </div>
                 <div class="right-diagram">
-                    <apexchart ref="right_diagram" type="line" height="460" :options="second_diagram_options" :series="series_right"></apexchart>
+                    <apexchart ref="right_diagram" type="line" height="460"
+                               :options="diagram_quality_data_per_day_options"
+                               :series="diagram_quality_data_per_day_series">
+
+                    </apexchart>
                 </div>
             </div>
         </div>
@@ -44,20 +51,19 @@
         },
         data () {
             return {
+                carouselItemCountsPerPage: 2,
                 autoPlay: true,
                 dashboard_time: '',
                 article_list: [],
-                first_diagram_datas: [],
-                second_diagram_datas: [],
                 article_card_color: ['blue-card', 'yellow-card', 'green-card'],
                 category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                first_diagram_options: {
+                diagram_production_data_per_day_options: {
                     colors : ['#277fe2', '#f9681f', '#3fcc45'],
                     chart: {
                         id: 'left_diagram'
                     },
                     xaxis: {
-                        categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+                        categories: []
                     },
                     plotOptions: {
                         bar: {
@@ -70,40 +76,9 @@
                         }
                     }
                 },
-                series_left: [
-                    {
-                        name: '80000081C1',
-                        data: []
-                    },
-                    {
-                        name: '80000101A1',
-                        data: []
-                    },
-                    {
-                        name: '80000114B2',
-                        data: []
-                    },
-                ],
+                diagram_production_data_per_day_series: [],
 
-                series_right: [{
-                    name: 'In Production',
-                    type: 'column',
-                    data: []
-                }, {
-                    name: 'Failed',
-                    type: 'column',
-                    data: []
-                }, {
-                    name: 'OK',
-                    type: 'column',
-                    data: []
-                }, {
-                    name: 'Rate/hr',
-                    type: 'line',
-                    data: []
-                }],
-
-                second_diagram_options: {
+                diagram_quality_data_per_day_options: {
                     colors : ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
                     chart: {
                         height: 450,
@@ -204,6 +179,7 @@
                     }
                 },
 
+                diagram_quality_data_per_day_series: [],
             }
         },
         computed: {
@@ -219,26 +195,24 @@
         },
         methods: {
             fetchInfo() {
-                // var chart = new ApexCharts(document.querySelector("#left_diagram"), options);
                 let method = 'get'
                 let url = `/dashboardInfo`
                 axios({
                     method,
                     url
                 }).then( r => {
-                    this.article_list = r.data.article_list
-                    this.first_diagram_datas = r.data.first_diagram_datas
-                    this.second_diagram_datas = r.data.second_diagram_datas
-                    this.first_diagram_options.xaxis.categories = []
-                    this.first_diagram_options.xaxis.categories = this.getCategories(r.data.categories)
-                    this.second_diagram_options.xaxis.categories = []
-                    this.second_diagram_options.xaxis.categories = this.getCategories(r.data.categories)
-                    this.$refs.left_diagram.updateOptions(this.first_diagram_options);
-                    this.$refs.right_diagram.updateOptions(this.second_diagram_options);
+                    this.article_list = this.convertObjectToArray(r.data.articles_produced_within_timespan)
+                    this.calcCarouselItemsPerPage()
+                    this.diagram_production_data_per_day_options.xaxis.categories = []
+                    this.diagram_production_data_per_day_options.xaxis.categories = this.getCategories(r.data.timeseries)
+                    this.diagram_quality_data_per_day_options.xaxis.categories = []
+                    this.diagram_quality_data_per_day_options.xaxis.categories = this.getCategories(r.data.timeseries)
+                    this.$refs.left_diagram.updateOptions(this.diagram_production_data_per_day_options);
+                    this.$refs.right_diagram.updateOptions(this.diagram_quality_data_per_day_options);
                     this.series_left = []
                     this.yaxis = []
-                    this.series_left = r.data.first_diagram_datas
-                    this.series_right = r.data.second_diagram_datas
+                    this.diagram_production_data_per_day_series = r.data.diagram_production_data_per_day
+                    this.diagram_quality_data_per_day_series = r.data.diagram_quality_data_per_day
                     let infoMessage = `fetched the updated data successfully.`
                     this.$buefy.snackbar.open({
                         message: infoMessage,
@@ -262,6 +236,17 @@
                     resCategories.push(paramCategories[i].split('-')[2] + '-' + this.category_month_info[paramCategories[i].split('-')[1] - 1])
                 }
                 return resCategories
+            },
+            calcCarouselItemsPerPage() {
+                this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2
+            },
+            convertObjectToArray(objData) {
+                let outArray = Object.keys(objData).map(function(data){
+                    return [objData[data]]
+                })
+                console.log(outArray)
+                console.log(outArray[0][0])
+                return outArray
             },
             calcTime() {
                 let d = new Date();

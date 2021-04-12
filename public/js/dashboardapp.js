@@ -1992,6 +1992,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'dashboard',
@@ -2001,20 +2008,19 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
+      carouselItemCountsPerPage: 2,
       autoPlay: true,
       dashboard_time: '',
       article_list: [],
-      first_diagram_datas: [],
-      second_diagram_datas: [],
       article_card_color: ['blue-card', 'yellow-card', 'green-card'],
       category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      first_diagram_options: {
+      diagram_production_data_per_day_options: {
         colors: ['#277fe2', '#f9681f', '#3fcc45'],
         chart: {
           id: 'left_diagram'
         },
         xaxis: {
-          categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
+          categories: []
         },
         plotOptions: {
           bar: {
@@ -2027,34 +2033,8 @@ __webpack_require__.r(__webpack_exports__);
           }
         }
       },
-      series_left: [{
-        name: '80000081C1',
-        data: []
-      }, {
-        name: '80000101A1',
-        data: []
-      }, {
-        name: '80000114B2',
-        data: []
-      }],
-      series_right: [{
-        name: 'In Production',
-        type: 'column',
-        data: []
-      }, {
-        name: 'Failed',
-        type: 'column',
-        data: []
-      }, {
-        name: 'OK',
-        type: 'column',
-        data: []
-      }, {
-        name: 'Rate/hr',
-        type: 'line',
-        data: []
-      }],
-      second_diagram_options: {
+      diagram_production_data_per_day_series: [],
+      diagram_quality_data_per_day_options: {
         colors: ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
         chart: {
           height: 450,
@@ -2150,7 +2130,8 @@ __webpack_require__.r(__webpack_exports__);
             offsetX: 60
           }
         }
-      }
+      },
+      diagram_quality_data_per_day_series: []
     };
   },
   computed: {},
@@ -2168,29 +2149,29 @@ __webpack_require__.r(__webpack_exports__);
     fetchInfo: function fetchInfo() {
       var _this = this;
 
-      // var chart = new ApexCharts(document.querySelector("#left_diagram"), options);
       var method = 'get';
       var url = "/dashboardInfo";
       axios({
         method: method,
         url: url
       }).then(function (r) {
-        _this.article_list = r.data.article_list;
-        _this.first_diagram_datas = r.data.first_diagram_datas;
-        _this.second_diagram_datas = r.data.second_diagram_datas;
-        _this.first_diagram_options.xaxis.categories = [];
-        _this.first_diagram_options.xaxis.categories = _this.getCategories(r.data.categories);
-        _this.second_diagram_options.xaxis.categories = [];
-        _this.second_diagram_options.xaxis.categories = _this.getCategories(r.data.categories);
+        _this.article_list = _this.convertObjectToArray(r.data.articles_produced_within_timespan);
 
-        _this.$refs.left_diagram.updateOptions(_this.first_diagram_options);
+        _this.calcCarouselItemsPerPage();
 
-        _this.$refs.right_diagram.updateOptions(_this.second_diagram_options);
+        _this.diagram_production_data_per_day_options.xaxis.categories = [];
+        _this.diagram_production_data_per_day_options.xaxis.categories = _this.getCategories(r.data.timeseries);
+        _this.diagram_quality_data_per_day_options.xaxis.categories = [];
+        _this.diagram_quality_data_per_day_options.xaxis.categories = _this.getCategories(r.data.timeseries);
+
+        _this.$refs.left_diagram.updateOptions(_this.diagram_production_data_per_day_options);
+
+        _this.$refs.right_diagram.updateOptions(_this.diagram_quality_data_per_day_options);
 
         _this.series_left = [];
         _this.yaxis = [];
-        _this.series_left = r.data.first_diagram_datas;
-        _this.series_right = r.data.second_diagram_datas;
+        _this.diagram_production_data_per_day_series = r.data.diagram_production_data_per_day;
+        _this.diagram_quality_data_per_day_series = r.data.diagram_quality_data_per_day;
         var infoMessage = "fetched the updated data successfully.";
 
         _this.$buefy.snackbar.open({
@@ -2216,6 +2197,17 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return resCategories;
+    },
+    calcCarouselItemsPerPage: function calcCarouselItemsPerPage() {
+      this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2;
+    },
+    convertObjectToArray: function convertObjectToArray(objData) {
+      var outArray = Object.keys(objData).map(function (data) {
+        return [objData[data]];
+      });
+      console.log(outArray);
+      console.log(outArray[0][0]);
+      return outArray;
     },
     calcTime: function calcTime() {
       var d = new Date();
@@ -18461,18 +18453,17 @@ var render = function() {
               "carousel",
               {
                 attrs: {
-                  "per-page": 3,
+                  "per-page": _vm.carouselItemCountsPerPage,
                   "navigate-to": 0,
                   "mouse-drag": false,
                   autoplay: true,
                   loop: true,
                   speed: 4000,
-                  autoplayTimeout: 8000,
-                  autoplayDirection: _vm.forward
+                  autoplayTimeout: 8000
                 }
               },
               _vm._l(_vm.article_list, function(article, index) {
-                return _c("slide", { key: "player-list-" + index }, [
+                return _c("slide", { key: index }, [
                   _c(
                     "div",
                     {
@@ -18481,14 +18472,10 @@ var render = function() {
                     },
                     [
                       _c("h1", { staticClass: "p-serial-number-text" }, [
-                        _c("b", [_vm._v(_vm._s(article.st_article_nr))])
+                        _c("b", [_vm._v(_vm._s(article.articleNumber))])
                       ]),
                       _vm._v(" "),
-                      _c("h1", [
-                        _vm._v("(5,66 Inch Display Unit [Harman "),
-                        _c("br"),
-                        _vm._v(" SCON-II])")
-                      ])
+                      _c("h1", [_vm._v(_vm._s(article.name))])
                     ]
                   )
                 ])
@@ -18510,8 +18497,8 @@ var render = function() {
               attrs: {
                 width: "95%",
                 type: "bar",
-                options: _vm.first_diagram_options,
-                series: _vm.series_left
+                options: _vm.diagram_production_data_per_day_options,
+                series: _vm.diagram_production_data_per_day_series
               }
             })
           ],
@@ -18527,8 +18514,8 @@ var render = function() {
               attrs: {
                 type: "line",
                 height: "460",
-                options: _vm.second_diagram_options,
-                series: _vm.series_right
+                options: _vm.diagram_quality_data_per_day_options,
+                series: _vm.diagram_quality_data_per_day_series
               }
             })
           ],
