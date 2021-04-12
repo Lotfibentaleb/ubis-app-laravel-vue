@@ -2155,7 +2155,7 @@ __webpack_require__.r(__webpack_exports__);
         method: method,
         url: url
       }).then(function (r) {
-        _this.article_list = _this.convertObjectToArray(r.data.articles_produced_within_timespan);
+        _this.article_list = r.data.articles_produced_within_timespan;
 
         _this.calcCarouselItemsPerPage();
 
@@ -2200,14 +2200,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     calcCarouselItemsPerPage: function calcCarouselItemsPerPage() {
       this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2;
-    },
-    convertObjectToArray: function convertObjectToArray(objData) {
-      var outArray = Object.keys(objData).map(function (data) {
-        return [objData[data]];
-      });
-      console.log(outArray);
-      console.log(outArray[0][0]);
-      return outArray;
     },
     calcTime: function calcTime() {
       var d = new Date();

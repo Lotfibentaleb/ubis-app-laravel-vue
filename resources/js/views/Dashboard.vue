@@ -201,7 +201,7 @@
                     method,
                     url
                 }).then( r => {
-                    this.article_list = this.convertObjectToArray(r.data.articles_produced_within_timespan)
+                    this.article_list = r.data.articles_produced_within_timespan
                     this.calcCarouselItemsPerPage()
                     this.diagram_production_data_per_day_options.xaxis.categories = []
                     this.diagram_production_data_per_day_options.xaxis.categories = this.getCategories(r.data.timeseries)
@@ -239,14 +239,6 @@
             },
             calcCarouselItemsPerPage() {
                 this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2
-            },
-            convertObjectToArray(objData) {
-                let outArray = Object.keys(objData).map(function(data){
-                    return [objData[data]]
-                })
-                console.log(outArray)
-                console.log(outArray[0][0])
-                return outArray
             },
             calcTime() {
                 let d = new Date();
