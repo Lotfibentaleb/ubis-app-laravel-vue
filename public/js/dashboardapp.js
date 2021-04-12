@@ -1991,18 +1991,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // @ is an alias to /src
 
  // optional style for arrows & dots
@@ -2022,6 +2010,7 @@ __webpack_require__.r(__webpack_exports__);
       article_card_color: ['blue-card', 'yellow-card', 'green-card'],
       category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       options: {
+        colors: ['#277fe2', '#f9681f', '#3fcc45'],
         chart: {
           id: 'left_diagram'
         },
@@ -2031,13 +2020,13 @@ __webpack_require__.r(__webpack_exports__);
       },
       series_left: [{
         name: '80000081C1',
-        data: [1, 2, 4, 5, 100, 28, 38, 46]
+        data: []
       }, {
         name: '80000101A1',
-        data: [200, 29, 37, 36, 44, 45, 50, 29]
+        data: []
       }, {
         name: '80000114B2',
-        data: [180, 19, 17, 36, 44, 45, 20, 38]
+        data: []
       }],
       yaxis: [{
         seriesName: '80000081C1'
@@ -2049,21 +2038,22 @@ __webpack_require__.r(__webpack_exports__);
       series_right: [{
         name: 'In Production',
         type: 'column',
-        data: [140, 20, 25, 15, 25, 28, 38, 180]
+        data: []
       }, {
         name: 'Failed',
         type: 'column',
-        data: [11, 30, 31, 40, 41, 49, 65, 85]
+        data: []
       }, {
         name: 'OK',
         type: 'column',
-        data: [11, 30, 31, 40, 41, 49, 65, 85]
+        data: []
       }, {
         name: 'Rate/hr',
         type: 'line',
-        data: [20, 29, 37, 36, 44, 45, 50, 58]
+        data: []
       }],
       chartOptions: {
+        colors: ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
         chart: {
           height: 450,
           type: 'line',
@@ -2114,17 +2104,17 @@ __webpack_require__.r(__webpack_exports__);
           },
           axisBorder: {
             show: true,
-            color: '#00E396'
+            color: '#f9681f'
           },
           labels: {
             style: {
-              colors: '#00E396'
+              colors: '#f9681f'
             }
           },
           title: {
             text: "",
             style: {
-              color: '#00E396'
+              color: '#f9681f'
             }
           }
         }, {
@@ -2135,17 +2125,17 @@ __webpack_require__.r(__webpack_exports__);
           },
           axisBorder: {
             show: true,
-            color: '#FEB019'
+            color: '#867f7b'
           },
           labels: {
             style: {
-              colors: '#FEB019'
+              colors: '#867f7b'
             }
           },
           title: {
             text: "",
             style: {
-              color: '#FEB019'
+              color: '#867f7b'
             }
           }
         }],
@@ -2196,29 +2186,12 @@ __webpack_require__.r(__webpack_exports__);
 
         _this.$refs.left_diagram.updateOptions(_this.options);
 
-        _this.$refs.right_diagram.updateOptions(_this.options);
+        _this.$refs.right_diagram.updateOptions(_this.chartOptions);
 
         _this.series_left = [];
         _this.yaxis = [];
-
-        for (var i = 0; i < _this.article_list.length; i++) {
-          var series_left_item = {
-            'name': _this.article_list[i].st_article_nr,
-            'data': [1, 2, 3, 4, 5, 6, 7, 8]
-          };
-          var yaxis_item = {
-            'seriesName': _this.article_list[i].st_article_nr
-          };
-
-          _this.series_left.push(series_left_item);
-
-          _this.yaxis.push[yaxis_item];
-        }
-
+        _this.series_left = r.data.first_diagram_datas;
         _this.series_right = r.data.second_diagram_datas;
-        console.log('article list', _this.article_list);
-        console.log('first_diagram', _this.first_diagram_datas);
-        console.log('second_diagram', _this.second_diagram_datas);
         var infoMessage = "fetching data successfully";
 
         _this.$buefy.snackbar.open({
@@ -2226,10 +2199,7 @@ __webpack_require__.r(__webpack_exports__);
           queue: false
         });
       })["catch"](function (err) {
-        var message = "fetching data fail"; // if( err.response.status == 404){
-        //     message = `Fehler: Produkt mit der Ser.Nr./UUID '${this.productSearch}' konnte nicht gefunden werden.`
-        // }
-
+        var message = "fetching data fail";
         console.log(err.response);
 
         _this.$buefy.toast.open({
@@ -2242,7 +2212,7 @@ __webpack_require__.r(__webpack_exports__);
     getCategories: function getCategories(paramCategories) {
       var resCategories = [];
 
-      for (var i = paramCategories.length - 1; i >= 0; i--) {
+      for (var i = 0; i < paramCategories.length; i++) {
         resCategories.push(paramCategories[i].split('-')[2] + '-' + this.category_month_info[paramCategories[i].split('-')[1] - 1]);
       }
 
@@ -19115,7 +19085,9 @@ var render = function() {
               [
                 _c("h1", { staticClass: "p-serial-number-text" }, [
                   _c("b", [_vm._v(_vm._s(article.st_article_nr))])
-                ])
+                ]),
+                _vm._v(" "),
+                _vm._m(2, true)
               ]
             )
           }),
@@ -19174,6 +19146,16 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "carousel-title" }, [
       _c("h1", [_c("b", [_vm._v("Articles in production")])])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h1", [
+      _vm._v("(5,66 Inch Display Unit [Harman "),
+      _c("br"),
+      _vm._v(" SCON-II])")
     ])
   }
 ]
