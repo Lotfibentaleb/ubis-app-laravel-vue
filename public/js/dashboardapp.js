@@ -2003,32 +2003,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // @ is an alias to /src
 
  // optional style for arrows & dots
@@ -2042,9 +2016,14 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       dashboard_time: '',
+      article_list: [],
+      first_diagram_datas: [],
+      second_diagram_datas: [],
+      article_card_color: ['blue-card', 'yellow-card', 'green-card'],
+      category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       options: {
         chart: {
-          id: 'vuechart-example'
+          id: 'left_diagram'
         },
         xaxis: {
           categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
@@ -2068,15 +2047,19 @@ __webpack_require__.r(__webpack_exports__);
         seriesName: '80000101A1'
       }],
       series_right: [{
-        name: 'Income',
+        name: 'In Production',
         type: 'column',
         data: [140, 20, 25, 15, 25, 28, 38, 180]
       }, {
-        name: 'Cashflow',
+        name: 'Failed',
         type: 'column',
         data: [11, 30, 31, 40, 41, 49, 65, 85]
       }, {
-        name: 'Revenue',
+        name: 'OK',
+        type: 'column',
+        data: [11, 30, 31, 40, 41, 49, 65, 85]
+      }, {
+        name: 'Rate/hr',
         type: 'line',
         data: [20, 29, 37, 36, 44, 45, 50, 58]
       }],
@@ -2084,7 +2067,8 @@ __webpack_require__.r(__webpack_exports__);
         chart: {
           height: 450,
           type: 'line',
-          stacked: false
+          stacked: false,
+          id: 'right_diagram'
         },
         dataLabels: {
           enabled: false
@@ -2123,7 +2107,7 @@ __webpack_require__.r(__webpack_exports__);
             enabled: true
           }
         }, {
-          seriesName: 'Income',
+          seriesName: 'In Production',
           opposite: true,
           axisTicks: {
             show: true
@@ -2144,7 +2128,7 @@ __webpack_require__.r(__webpack_exports__);
             }
           }
         }, {
-          seriesName: 'Revenue',
+          seriesName: 'Failed',
           opposite: true,
           axisTicks: {
             show: true
@@ -2183,6 +2167,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {},
   mounted: function mounted() {
+    this.fetchInfo();
+
     function showTime() {
       this.dashboard_time = this.calcTime();
     }
@@ -2190,6 +2176,78 @@ __webpack_require__.r(__webpack_exports__);
     setInterval(showTime.bind(this), 1000);
   },
   methods: {
+    fetchInfo: function fetchInfo() {
+      var _this = this;
+
+      // var chart = new ApexCharts(document.querySelector("#left_diagram"), options);
+      var method = 'get';
+      var url = "/dashboardInfo";
+      axios({
+        method: method,
+        url: url
+      }).then(function (r) {
+        _this.article_list = r.data.article_list;
+        _this.first_diagram_datas = r.data.first_diagram_datas;
+        _this.second_diagram_datas = r.data.second_diagram_datas;
+        _this.options.xaxis.categories = [];
+        _this.options.xaxis.categories = _this.getCategories(r.data.categories);
+        _this.chartOptions.xaxis.categories = [];
+        _this.chartOptions.xaxis.categories = _this.getCategories(r.data.categories);
+
+        _this.$refs.left_diagram.updateOptions(_this.options);
+
+        _this.$refs.right_diagram.updateOptions(_this.options);
+
+        _this.series_left = [];
+        _this.yaxis = [];
+
+        for (var i = 0; i < _this.article_list.length; i++) {
+          var series_left_item = {
+            'name': _this.article_list[i].st_article_nr,
+            'data': [1, 2, 3, 4, 5, 6, 7, 8]
+          };
+          var yaxis_item = {
+            'seriesName': _this.article_list[i].st_article_nr
+          };
+
+          _this.series_left.push(series_left_item);
+
+          _this.yaxis.push[yaxis_item];
+        }
+
+        _this.series_right = r.data.second_diagram_datas;
+        console.log('article list', _this.article_list);
+        console.log('first_diagram', _this.first_diagram_datas);
+        console.log('second_diagram', _this.second_diagram_datas);
+        var infoMessage = "fetching data successfully";
+
+        _this.$buefy.snackbar.open({
+          message: infoMessage,
+          queue: false
+        });
+      })["catch"](function (err) {
+        var message = "fetching data fail"; // if( err.response.status == 404){
+        //     message = `Fehler: Produkt mit der Ser.Nr./UUID '${this.productSearch}' konnte nicht gefunden werden.`
+        // }
+
+        console.log(err.response);
+
+        _this.$buefy.toast.open({
+          message: message,
+          type: 'is-danger',
+          queue: false
+        });
+      })["finally"](function () {});
+    },
+    getCategories: function getCategories(paramCategories) {
+      var resCategories = [];
+
+      for (var i = paramCategories.length - 1; i >= 0; i--) {
+        resCategories.push(paramCategories[i].split('-')[2] + '-' + this.category_month_info[paramCategories[i].split('-')[1] - 1]);
+      }
+
+      return resCategories;
+    },
     calcTime: function calcTime() {
       var d = new Date();
       var yyyy = d.getFullYear();
@@ -17657,25 +17715,6 @@ exports.push([module.i, ".slick-track[data-v-e4caeaf8]{position:relative;top:0;l
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&":
-/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css& ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n.dashboard-header {\n    width: 100%;\n    height: 100px;\n    background: white;\n    display: flex;\n    justify-content: space-between;\n    padding: 30px;\n}\n.header-text {\n    font-size: 30px;\n    font-weight: 600;\n}\n\n", ""]);
-
-// exports
-
-
-/***/ }),
-
 /***/ "./node_modules/css-loader/lib/css-base.js":
 /*!*************************************************!*\
   !*** ./node_modules/css-loader/lib/css-base.js ***!
@@ -18153,36 +18192,6 @@ process.umask = function() { return 0; };
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../process/browser.js */ "./node_modules/process/browser.js")))
-
-/***/ }),
-
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./Dashboard.vue?vue&type=style&index=0&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(false) {}
 
 /***/ }),
 
@@ -19085,10 +19094,34 @@ var render = function() {
   return _c("div", { staticClass: "dashboard-layout" }, [
     _c("div", { staticClass: "dashboard-container" }, [
       _c("div", { staticClass: "dashboard-header" }, [
+        _vm._m(0),
+        _vm._v(" "),
         _c("h1", [_c("b", [_vm._v(_vm._s(_vm.dashboard_time))])])
       ]),
       _vm._v(" "),
-      _vm._m(0),
+      _c("div", { staticClass: "dashboard-carousel-section" }, [
+        _vm._m(1),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "carousel-items" },
+          _vm._l(_vm.article_list, function(article, index) {
+            return _c(
+              "div",
+              {
+                staticClass: "article-card blue-card",
+                class: _vm.article_card_color[index]
+              },
+              [
+                _c("h1", { staticClass: "p-serial-number-text" }, [
+                  _c("b", [_vm._v(_vm._s(article.st_article_nr))])
+                ])
+              ]
+            )
+          }),
+          0
+        )
+      ]),
       _vm._v(" "),
       _c("div", { staticClass: "dashboard-chart-section" }, [
         _c(
@@ -19096,6 +19129,7 @@ var render = function() {
           { staticClass: "left-diagram" },
           [
             _c("apexchart", {
+              ref: "left_diagram",
               attrs: {
                 width: "95%",
                 type: "bar",
@@ -19112,6 +19146,7 @@ var render = function() {
           { staticClass: "right-diagram" },
           [
             _c("apexchart", {
+              ref: "right_diagram",
               attrs: {
                 type: "line",
                 height: "460",
@@ -19131,44 +19166,14 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "dashboard-carousel-section" }, [
-      _c("div", { staticClass: "carousel-title" }, [
-        _c("h1", [_vm._v("Articles in production")])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "carousel-items" }, [
-        _c("div", { staticClass: "article-card blue-card" }, [
-          _c("h1", { staticClass: "p-serial-number-text" }, [
-            _c("b", [_vm._v("80000081C1")])
-          ]),
-          _vm._v(" "),
-          _c("h1", [
-            _vm._v("(5,66 Inch Display Unit [Harman "),
-            _c("br"),
-            _vm._v(" SCON-II])")
-          ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "article-card yellow-card" }, [
-          _c("h1", { staticClass: "p-serial-number-text" }, [
-            _c("b", [_vm._v("80000101A1")])
-          ]),
-          _vm._v(" "),
-          _c("h1", [_vm._v("SCON Assembly (B1)")])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "article-card green-card" }, [
-          _c("h1", { staticClass: "p-serial-number-text" }, [
-            _c("b", [_vm._v("80000114B2")])
-          ]),
-          _vm._v(" "),
-          _c("h1", [
-            _vm._v("10,25 inch Display cluster w/o  "),
-            _c("br"),
-            _vm._v(" coating")
-          ])
-        ])
-      ])
+    return _c("h1", [_c("b", [_vm._v("UBIS - Production Dashboard")])])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "carousel-title" }, [
+      _c("h1", [_c("b", [_vm._v("Articles in production")])])
     ])
   }
 ]
@@ -45822,9 +45827,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Dashboard_vue_vue_type_template_id_1f79daf6___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Dashboard.vue?vue&type=template&id=1f79daf6& */ "./resources/js/views/Dashboard.vue?vue&type=template&id=1f79daf6&");
 /* harmony import */ var _Dashboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Dashboard.vue?vue&type=script&lang=js& */ "./resources/js/views/Dashboard.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Dashboard.vue?vue&type=style&index=0&lang=css& */ "./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -45832,7 +45835,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
   _Dashboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _Dashboard_vue_vue_type_template_id_1f79daf6___WEBPACK_IMPORTED_MODULE_0__["render"],
   _Dashboard_vue_vue_type_template_id_1f79daf6___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -45861,22 +45864,6 @@ component.options.__file = "resources/js/views/Dashboard.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./Dashboard.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/Dashboard.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&":
-/*!***************************************************************************!*\
-  !*** ./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css& ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./Dashboard.vue?vue&type=style&index=0&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/views/Dashboard.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Dashboard_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-
 
 /***/ }),
 

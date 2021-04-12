@@ -1,65 +1,39 @@
 <template>
-    <!--<div class="dashboard-background">-->
-        <!--<div class="dashboard-content-left">-->
-            <!--<div class="article-header">-->
-                <!--<h1>Articles in production</h1>-->
-            <!--</div>-->
-
-            <!--<div class="article-card blue-card">-->
-                <!--<h1 class="p-serial-number-text">80000081C1</h1>-->
-                <!--<h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>-->
-            <!--</div>-->
-
-            <!--<div class="article-card yellow-card">-->
-                <!--<h1 class="p-serial-number-text">80000101A1</h1>-->
-                <!--<h1>SCON Assembly (B1)</h1>-->
-            <!--</div>-->
-
-            <!--<div class="article-card green-card">-->
-                <!--<h1 class="p-serial-number-text">80000114B2</h1>-->
-                <!--<h1>10,25 inch Display cluster w/o  <br> coating</h1>-->
-            <!--</div>-->
-        <!--</div>-->
-        <!--<div class="dashboard-content-right">-->
-            <!--<div class="date-format">-->
-                <!--<h1><b>09.04.2021 14:01</b></h1>-->
-                <!--<div class="diagram">-->
-                    <!--<apexchart width="600" type="bar" :options="options" :series="series"></apexchart>-->
-                    <!--<apexchart width="600" type="bar" :options="options" :series="series"></apexchart>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
     <div class="dashboard-layout">
         <div class="dashboard-container">
             <div class="dashboard-header">
+                <h1><b>UBIS - Production Dashboard</b></h1>
                 <h1><b>{{dashboard_time}}</b></h1>
             </div>
             <div class="dashboard-carousel-section">
                 <div class="carousel-title">
-                    <h1>Articles in production</h1>
+                    <h1><b>Articles in production</b></h1>
                 </div>
                 <div class="carousel-items">
-                    <div class="article-card blue-card">
-                        <h1 class="p-serial-number-text"><b>80000081C1</b></h1>
-                        <h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>
+                    <div v-for="(article, index) in article_list" class="article-card blue-card" v-bind:class="article_card_color[index]">
+                        <h1 class="p-serial-number-text"><b>{{article.st_article_nr}}</b></h1>
+                        <!--<h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>-->
                     </div>
-                    <div class="article-card yellow-card">
-                        <h1 class="p-serial-number-text"><b>80000101A1</b></h1>
-                        <h1>SCON Assembly (B1)</h1>
-                    </div>
-                    <div class="article-card green-card">
-                        <h1 class="p-serial-number-text"><b>80000114B2</b></h1>
-                        <h1>10,25 inch Display cluster w/o  <br> coating</h1>
-                    </div>
+                    <!--<div class="article-card blue-card">-->
+                        <!--<h1 class="p-serial-number-text"><b>80000081C1</b></h1>-->
+                        <!--<h1>(5,66 Inch Display Unit [Harman <br> SCON-II])</h1>-->
+                    <!--</div>-->
+                    <!--<div class="article-card yellow-card">-->
+                        <!--<h1 class="p-serial-number-text"><b>80000101A1</b></h1>-->
+                        <!--<h1>SCON Assembly (B1)</h1>-->
+                    <!--</div>-->
+                    <!--<div class="article-card green-card">-->
+                        <!--<h1 class="p-serial-number-text"><b>80000114B2</b></h1>-->
+                        <!--<h1>10,25 inch Display cluster w/o  <br> coating</h1>-->
+                    <!--</div>-->
                 </div>
             </div>
             <div class="dashboard-chart-section">
                 <div class="left-diagram">
-                    <apexchart width="95%" type="bar" :options="options" :series="series_left"></apexchart>
+                    <apexchart ref="left_diagram" width="95%" type="bar" :options="options" :series="series_left"></apexchart>
                 </div>
                 <div class="right-diagram">
-                    <apexchart type="line" height="460" :options="chartOptions" :series="series_right"></apexchart>
+                    <apexchart ref="right_diagram" type="line" height="460" :options="chartOptions" :series="series_right"></apexchart>
                 </div>
             </div>
         </div>
@@ -81,9 +55,14 @@
         data () {
             return {
                 dashboard_time: '',
+                article_list: [],
+                first_diagram_datas: [],
+                second_diagram_datas: [],
+                article_card_color: ['blue-card', 'yellow-card', 'green-card'],
+                category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 options: {
                     chart: {
-                        id: 'vuechart-example'
+                        id: 'left_diagram'
                     },
                     xaxis: {
                         categories: ['2-Apr', '3-Apr', '4-Apr', '5-Apr', '6-Apr', '7-Apr', '8-Apr', '9-Apr']
@@ -115,18 +94,20 @@
                     }
                 ],
 
-
-
                 series_right: [{
-                    name: 'Income',
+                    name: 'In Production',
                     type: 'column',
                     data: [140, 20, 25, 15, 25, 28, 38, 180]
                 }, {
-                    name: 'Cashflow',
+                    name: 'Failed',
                     type: 'column',
                     data: [11, 30, 31, 40, 41, 49, 65, 85]
                 }, {
-                    name: 'Revenue',
+                    name: 'OK',
+                    type: 'column',
+                    data: [11, 30, 31, 40, 41, 49, 65, 85]
+                }, {
+                    name: 'Rate/hr',
                     type: 'line',
                     data: [20, 29, 37, 36, 44, 45, 50, 58]
                 }],
@@ -134,7 +115,8 @@
                     chart: {
                         height: 450,
                         type: 'line',
-                        stacked: false
+                        stacked: false,
+                        id: 'right_diagram'
                     },
                     dataLabels: {
                         enabled: false
@@ -175,7 +157,7 @@
                             }
                         },
                         {
-                            seriesName: 'Income',
+                            seriesName: 'In Production',
                             opposite: true,
                             axisTicks: {
                                 show: true,
@@ -197,7 +179,7 @@
                             },
                         },
                         {
-                            seriesName: 'Revenue',
+                            seriesName: 'Failed',
                             opposite: true,
                             axisTicks: {
                                 show: true,
@@ -239,12 +221,68 @@
 
         },
         mounted () {
+            this.fetchInfo()
             function showTime() {
-                this.dashboard_time = this.calcTime();
+                this.dashboard_time = this.calcTime()
             }
-            setInterval(showTime.bind(this), 1000);
+            setInterval(showTime.bind(this), 1000)
         },
         methods: {
+            fetchInfo() {
+                // var chart = new ApexCharts(document.querySelector("#left_diagram"), options);
+                let method = 'get'
+                let url = `/dashboardInfo`
+                axios({
+                    method,
+                    url
+                }).then( r => {
+                    this.article_list = r.data.article_list
+                    this.first_diagram_datas = r.data.first_diagram_datas
+                    this.second_diagram_datas = r.data.second_diagram_datas
+                    this.options.xaxis.categories = []
+                    this.options.xaxis.categories = this.getCategories(r.data.categories)
+                    this.chartOptions.xaxis.categories = []
+                    this.chartOptions.xaxis.categories = this.getCategories(r.data.categories)
+                    this.$refs.left_diagram.updateOptions(this.options);
+                    this.$refs.right_diagram.updateOptions(this.options);
+                    this.series_left = []
+                    this.yaxis = []
+                    for(let i = 0; i<this.article_list.length; i++){
+                        const series_left_item = {
+                            'name': this.article_list[i].st_article_nr,
+                            'data': [1, 2, 3, 4, 5, 6, 7, 8]
+                        }
+                        const yaxis_item = {
+                            'seriesName': this.article_list[i].st_article_nr
+                        }
+                        this.series_left.push(series_left_item);
+                        this.yaxis.push[yaxis_item];
+                    }
+                    this.series_right = r.data.second_diagram_datas
+                    let infoMessage = `fetching data successfully`
+                    this.$buefy.snackbar.open({
+                        message: infoMessage,
+                        queue: false
+                    })
+                }).catch( err => {
+                    let message = `fetching data fail`
+                    console.log(err.response)
+                    this.$buefy.toast.open({
+                        message: message,
+                        type: 'is-danger',
+                        queue: false
+                    })
+                }).finally(() => {
+
+                })
+            },
+            getCategories(paramCategories) {
+                let resCategories = []
+                for(let i = paramCategories.length - 1; i >= 0; i--) {
+                    resCategories.push(paramCategories[i].split('-')[2] + '-' + this.category_month_info[paramCategories[i].split('-')[1] - 1])
+                }
+                return resCategories
+            },
             calcTime() {
                 let d = new Date();
                 let yyyy = d.getFullYear();
@@ -263,18 +301,4 @@
         }
     }
 </script>
-<style>
- .dashboard-header {
-     width: 100%;
-     height: 100px;
-     background: white;
-     display: flex;
-     justify-content: space-between;
-     padding: 30px;
- }
- .header-text {
-     font-size: 30px;
-     font-weight: 600;
- }
 
-</style>
