@@ -2009,7 +2009,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2041,13 +2040,22 @@ __webpack_require__.r(__webpack_exports__);
         xaxis: {
           categories: []
         },
+        yaxis: {
+          labels: {
+            style: {
+              colors: '#008FFB',
+              fontSize: '16'
+            }
+          }
+        },
         plotOptions: {
           bar: {
             dataLabels: {
               position: 'top',
               maxItems: 100,
-              hideOverflowingLabels: true,
-              orientation: 'horizontal'
+              hideOverflowingLabels: false,
+              orientation: 'horizontal',
+              colors: '#000000'
             }
           }
         }
@@ -2056,7 +2064,7 @@ __webpack_require__.r(__webpack_exports__);
       diagram_quality_data_per_day_options: {
         colors: ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
         chart: {
-          height: 450,
+          height: 465,
           type: 'line',
           stacked: false,
           id: 'right_diagram'
@@ -2065,7 +2073,7 @@ __webpack_require__.r(__webpack_exports__);
           enabled: false
         },
         stroke: {
-          width: [1, 1, 1, 2]
+          width: [1, 1, 1, 1, 3]
         },
         title: {
           text: '',
@@ -2085,7 +2093,8 @@ __webpack_require__.r(__webpack_exports__);
           },
           labels: {
             style: {
-              colors: '#008FFB'
+              colors: '#008FFB',
+              fontSize: '16'
             }
           },
           title: {
@@ -2109,7 +2118,8 @@ __webpack_require__.r(__webpack_exports__);
           },
           labels: {
             style: {
-              colors: '#f9681f'
+              colors: '#f9681f',
+              fontSize: '16'
             }
           },
           title: {
@@ -24457,6 +24467,7 @@ var render = function() {
               ref: "left_diagram",
               attrs: {
                 width: "95%",
+                height: "460",
                 type: "bar",
                 options: _vm.diagram_production_data_per_day_options,
                 series: _vm.diagram_production_data_per_day_series
@@ -24498,7 +24509,8 @@ var render = function() {
               ref: "right_diagram",
               attrs: {
                 type: "line",
-                height: "460",
+                width: "100%",
+                height: "465",
                 options: _vm.diagram_quality_data_per_day_options,
                 series: _vm.diagram_quality_data_per_day_series
               }

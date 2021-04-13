@@ -23,7 +23,7 @@
             </div>
             <div class="dashboard-chart-section">
                 <div class="left-diagram">
-                    <apexchart ref="left_diagram" width="95%" type="bar"
+                    <apexchart ref="left_diagram" width="95%" height="460" type="bar"
                                :options="diagram_production_data_per_day_options"
                                :series="diagram_production_data_per_day_series">
                     </apexchart>
@@ -39,10 +39,9 @@
                     </b-datepicker>
                 </div>
                 <div class="right-diagram">
-                    <apexchart ref="right_diagram" type="line" height="460"
+                    <apexchart ref="right_diagram" type="line" width="100%" height="465"
                                :options="diagram_quality_data_per_day_options"
                                :series="diagram_quality_data_per_day_series">
-
                     </apexchart>
                 </div>
             </div>
@@ -83,13 +82,22 @@
                     xaxis: {
                         categories: []
                     },
+                    yaxis: {
+                        labels: {
+                            style: {
+                                colors: '#008FFB',
+                                fontSize: '16'
+                            }
+                        }
+                    },
                     plotOptions: {
                         bar: {
                             dataLabels: {
                                 position: 'top',
                                 maxItems: 100,
-                                hideOverflowingLabels: true,
-                                orientation: 'horizontal'
+                                hideOverflowingLabels: false,
+                                orientation: 'horizontal',
+                                colors: '#000000'
                             }
                         }
                     }
@@ -99,7 +107,7 @@
                 diagram_quality_data_per_day_options: {
                     colors : ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
                     chart: {
-                        height: 450,
+                        height: 465,
                         type: 'line',
                         stacked: false,
                         id: 'right_diagram'
@@ -108,7 +116,7 @@
                         enabled: false
                     },
                     stroke: {
-                        width: [1, 1, 1, 2]
+                        width: [1, 1, 1, 1, 3]
                     },
                     title: {
                         text: '',
@@ -130,6 +138,7 @@
                             labels: {
                                 style: {
                                     colors: '#008FFB',
+                                    fontSize: '16'
                                 }
                             },
                             title: {
@@ -155,6 +164,7 @@
                             labels: {
                                 style: {
                                     colors: '#f9681f',
+                                    fontSize: '16'
                                 }
                             },
                             title: {
