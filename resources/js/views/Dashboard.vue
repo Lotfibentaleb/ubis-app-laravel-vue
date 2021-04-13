@@ -7,13 +7,13 @@
             </div>
             <div class="dashboard-carousel-section">
                 <div class="carousel-title">
-                    <h1><b>Articles in production</b></h1>
+                    <h1><b>Articles in production last 10 days</b></h1>
                 </div>
                 <div class="carousel-items">
                     <carousel :per-page="carouselItemCountsPerPage" :navigate-to="0" :mouse-drag="false" :autoplay="true" :loop="true"
                               :speed="4000" :autoplayTimeout="8000">
                         <slide v-for="(article, index) in article_list" :key="index">
-                            <div class="article-card blue-card" v-bind:class="article_card_color[index]">
+                            <div class="article-card blue-card" v-bind:class="article_card_color[index % 10]">
                                 <h1 class="p-serial-number-text"><b>{{article.articleNumber}}</b></h1>
                                 <h1>{{article.name}}</h1>
                             </div>
@@ -23,7 +23,7 @@
             </div>
             <div class="dashboard-chart-section">
                 <div class="left-diagram">
-                    <apexchart ref="left_diagram" width="95%" height="460" type="bar"
+                    <apexchart ref="left_diagram" width="100%" height="460" type="bar"
                                :options="diagram_production_data_per_day_options"
                                :series="diagram_production_data_per_day_series">
                     </apexchart>
@@ -72,40 +72,68 @@
                 autoPlay: true,
                 dashboard_time: '',
                 article_list: [],
-                article_card_color: ['blue-card', 'yellow-card', 'green-card'],
-                category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                article_card_color: ['card-one', 'card-two', 'card-three', 'card-four', 'card-five', 'card-six',
+                    'card-seven', 'card-eight', 'card-nine', 'card-ten'],
+                category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct',
+                    'Nov', 'Dec'],
                 diagram_production_data_per_day_options: {
-                    colors : ['#277fe2', '#f9681f', '#3fcc45'],
+                    colors : ['#277fe2', '#f9681f', '#3fcc45', '#8a057e', '#312725', '#2d0c77', '#8a0404',
+                        '#0d6667', '#23567b', '#045361'],
                     chart: {
                         id: 'left_diagram'
                     },
                     xaxis: {
                         categories: []
                     },
-                    yaxis: {
-                        labels: {
-                            style: {
-                                colors: '#008FFB',
-                                fontSize: '16'
+                    yaxis: [
+                        {
+                            labels: {
+                                style: {
+                                    colors: '#008FFB',
+                                    fontSize: '16'
+                                }
+                            },
+                            axisBorder: {
+                                show: true,
+                                color: '#008FFB'
                             }
                         }
-                    },
+                    ],
                     plotOptions: {
                         bar: {
                             dataLabels: {
-                                position: 'top',
-                                maxItems: 100,
-                                hideOverflowingLabels: false,
-                                orientation: 'horizontal',
-                                colors: '#000000'
+                                position: 'top'
                             }
                         }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            colors: ['#474D52'],
+                            fontSize: '14'
+                        },
+                        offsetY: -30,
+                        formatter: function(value, { seriesIndex, dataPointIndex, w }) {
+                            if(value == 0) {
+                                return ''
+                            } else {
+                                return value
+                            }
+                        }
+                    },
+                    tooltip: {
+                        fixed: {
+                            enabled: true,
+                            position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
+                            offsetY: 30,
+                            offsetX: 60
+                        },
                     }
                 },
                 diagram_production_data_per_day_series: [],
 
                 diagram_quality_data_per_day_options: {
-                    colors : ['#f9681f', '#867f7b', '#f3ae0d', '#3f4590'],
+                    colors : ['#f9681f', '#229627', '#867f7b', '#3f4590', '#a717bf'],
                     chart: {
                         height: 465,
                         type: 'line',
@@ -116,7 +144,7 @@
                         enabled: false
                     },
                     stroke: {
-                        width: [1, 1, 1, 1, 3]
+                        width: [1, 1, 1, 1, 4]
                     },
                     title: {
                         text: '',
@@ -128,9 +156,6 @@
                     },
                     yaxis: [
                         {
-                            axisTicks: {
-                                show: true,
-                            },
                             axisBorder: {
                                 show: true,
                                 color: '#008FFB'
@@ -187,6 +212,7 @@
                             labels: {
                                 style: {
                                     colors: '#867f7b',
+                                    fontSize: '15'
                                 },
                             },
                             title: {
@@ -213,7 +239,7 @@
         mounted () {
             this.fetchInfo()
             setInterval(this.calcTime, 1000)
-            setInterval(this.clearSelectedDate, 24000) //every 4 min
+            setInterval(this.clearSelectedDate, 180000) //every 3 min
         },
         methods: {
             clearSelectedDate() {
@@ -265,7 +291,7 @@
                 return resCategories
             },
             calcCarouselItemsPerPage() {
-                this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2
+                this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : this.article_list.length
             },
             getParamDate(strDate) {
                 let d = new Date(strDate);

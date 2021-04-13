@@ -53,20 +53,62 @@
                     padding-top: 15px;
                     color: white;
                     text-align: center;
-                    &.blue-card{
-                        background: #277fe2;
+                    &.card-one{
+                        background: #1257a5;
                         .p-serial-number-text{
                           font-size: 21px;
                         }
                     }
-                    &.yellow-card{
-                        background: #f9681f;
+                    &.card-two{
+                        background: #b34711;
                         .p-serial-number-text{
                           font-size: 21px;
                         }
                     }
-                    &.green-card {
-                        background: #3fcc45;
+                    &.card-three {
+                        background: #229627;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-four {
+                        background: #8a057e;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-five {
+                        background: #312725;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-six {
+                        background: #2d0c77;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-seven {
+                        background: #8a0404;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-eight {
+                        background: #0d6667;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-nine {
+                        background: #23567b;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-ten {
+                        background: #045361;
                         .p-serial-number-text {
                             font-size: 21px;
                         }
@@ -90,7 +132,7 @@
                 left: 43%;
             }
             .right-diagram{
-                width: 47%;
+                width: 50%;
                 height: 100%;
             }
         }
