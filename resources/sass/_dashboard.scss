@@ -13,16 +13,19 @@
             display: flex;
             justify-content: space-between;
             padding: 30px;
-            .date-time{
-                position: relative;
-                .date-time-picker{
-                    position: absolute;
-                    left: 0;
-                    top: 10px;
+            .date-picker{
+                display: flex;
+                & button{
+                    margin-top: 10px;
+                }
+                & h1{
+                    font-size: 40px;
+                    margin-left: 10px;
                 }
             }
             & h1{
                 font-size: 40px;
+                margin-left: 10px;
             }
         }
         .dashboard-carousel-section{
@@ -76,9 +79,15 @@
             height: 600px;
             display: flex;
             justify-content: space-between;
+            position: relative;
             .left-diagram{
                 width: 44%;
                 height: 100%;
+            }
+            .date-picker{
+                position: absolute;
+                top: -60px;
+                left: 43%;
             }
             .right-diagram{
                 width: 47%;
@@ -86,4 +95,7 @@
             }
         }
     }
+}
+.datepicker .dropdown-trigger .input[readonly]{
+    visibility: hidden;
 }

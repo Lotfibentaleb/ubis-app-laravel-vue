@@ -19129,18 +19129,22 @@ footer.footer .logo img {
   padding: 30px;
 }
 
-.dashboard-layout .dashboard-container .dashboard-header .date-time {
-  position: relative;
+.dashboard-layout .dashboard-container .dashboard-header .date-picker {
+  display: flex;
 }
 
-.dashboard-layout .dashboard-container .dashboard-header .date-time .date-time-picker {
-  position: absolute;
-  left: 0;
-  top: 10px;
+.dashboard-layout .dashboard-container .dashboard-header .date-picker button {
+  margin-top: 10px;
+}
+
+.dashboard-layout .dashboard-container .dashboard-header .date-picker h1 {
+  font-size: 40px;
+  margin-left: 10px;
 }
 
 .dashboard-layout .dashboard-container .dashboard-header h1 {
   font-size: 40px;
+  margin-left: 10px;
 }
 
 .dashboard-layout .dashboard-container .dashboard-carousel-section {
@@ -19201,6 +19205,7 @@ footer.footer .logo img {
   height: 600px;
   display: flex;
   justify-content: space-between;
+  position: relative;
 }
 
 .dashboard-layout .dashboard-container .dashboard-chart-section .left-diagram {
@@ -19208,9 +19213,21 @@ footer.footer .logo img {
   height: 100%;
 }
 
+.dashboard-layout .dashboard-container .dashboard-chart-section .date-picker {
+  position: absolute;
+  top: -60px;
+  left: 43%;
+}
+
 .dashboard-layout .dashboard-container .dashboard-chart-section .right-diagram {
   width: 47%;
   height: 100%;
+}
+
+.datepicker .dropdown-trigger .input[readonly],
+.datepicker .dropdown-trigger .taginput [readonly].taginput-container.is-focusable,
+.taginput .datepicker .dropdown-trigger [readonly].taginput-container.is-focusable {
+  visibility: hidden;
 }
 
 /* Animate.css custom build (just selected animations to minimize bundle size) */

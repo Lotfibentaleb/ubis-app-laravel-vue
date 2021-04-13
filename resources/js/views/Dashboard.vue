@@ -28,6 +28,16 @@
                                :series="diagram_production_data_per_day_series">
                     </apexchart>
                 </div>
+                <div class="date-picker">
+                    <b-datepicker
+                        placeholder="Type or select a date..."
+                        icon="calendar-today"
+                        :min-date="minDate"
+                        :max-date="maxDate"
+                        v-model="selectedDate"
+                        editable>
+                    </b-datepicker>
+                </div>
                 <div class="right-diagram">
                     <apexchart ref="right_diagram" type="line" height="460"
                                :options="diagram_quality_data_per_day_options"
@@ -42,15 +52,23 @@
 
 <script>
     import { Carousel, Slide } from 'vue-carousel'
+    import BDatepicker from "buefy/src/components/datepicker/Datepicker";
 
     export default {
         name: 'dashboard',
         components: {
+            BDatepicker,
             Carousel,
             Slide
         },
         data () {
+            const today = new Date()
             return {
+                date: new Date(),
+                minDate: new Date(today.getFullYear() - 80, today.getMonth(), today.getDate()),
+                maxDate: new Date(today.getFullYear() + 18, today.getMonth(), today.getDate()),
+                selectedDate: null,
+                isShowDatePicker: false,
                 carouselItemCountsPerPage: 2,
                 autoPlay: true,
                 dashboard_time: '',
@@ -182,21 +200,20 @@
                 diagram_quality_data_per_day_series: [],
             }
         },
-        computed: {
-
-        },
         mounted () {
             this.fetchInfo()
-            function showTime() {
-                this.dashboard_time = this.calcTime()
-            }
-            setInterval(showTime.bind(this), 1000)
-            setInterval(this.fetchInfo, 24000)
+            setInterval(this.calcTime, 1000)
+            setInterval(this.clearSelectedDate, 10000)
         },
         methods: {
+            clearSelectedDate() {
+                this.selectedDate = null
+                this.fetchInfo()
+            },
             fetchInfo() {
                 let method = 'get'
-                let url = `/dashboardInfo`
+                let paramDate = this.selectedDate ? this.getParamDate(this.selectedDate) : ''
+                let url = `/dashboardInfo?selectedDate=${paramDate}`
                 axios({
                     method,
                     url
@@ -240,6 +257,21 @@
             calcCarouselItemsPerPage() {
                 this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : 2
             },
+            getParamDate(strDate) {
+                let d = new Date(strDate);
+                let yyyy = d.getFullYear();
+                let mm = d.getMonth() + 1;
+                let dd = d.getDate()
+                let hr = d.getHours();
+                let min = d.getMinutes();
+                let second = d.getSeconds();
+                mm = mm < 10 ? ('0' + mm) : mm;
+                dd = dd < 10 ? ('0' + dd) : dd;
+                hr = hr < 10 ? ('0' + hr) : hr;
+                min = min < 10 ? ('0' + min) : min;
+                second = second < 10 ? ('0' + second) : second;
+                return yyyy + '-' + mm + '-' + dd
+            },
             calcTime() {
                 let d = new Date();
                 let yyyy = d.getFullYear();
@@ -253,7 +285,15 @@
                 hr = hr < 10 ? ('0' + hr) : hr;
                 min = min < 10 ? ('0' + min) : min;
                 second = second < 10 ? ('0' + second) : second;
-                return dd + '.' + mm + '.' + yyyy + '  ' + hr + ':' + min + ':' + second;
+                this.dashboard_time = dd + '.' + mm + '.' + yyyy + '  ' + hr + ':' + min + ':' + second;
+            }
+        },
+        computed: {
+
+        },
+        watch:{
+            selectedDate:function(){
+                this.fetchInfo();
             }
         }
     }
