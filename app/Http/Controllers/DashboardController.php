@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp;
 
+
 class DashboardController extends Controller
 {
     /**
@@ -27,11 +28,12 @@ class DashboardController extends Controller
         return view('dashboard');
     }
 
-    public function dashboardInfo()
+    public function dashboardInfo(Request $request)
     {
+        $paramDate = $request->input('selectedDate', '');
         $client = new GuzzleHttp\Client();
         $baseUrl = env('PIS_SERVICE_BASE_URL2');
-        $requestString = 'dashboard/info';
+        $requestString = isset($paramDate) ? 'dashboard/info?selectedDate='.$paramDate : 'dashboard/info';
         $options = [
             'headers' =>[
                 'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),

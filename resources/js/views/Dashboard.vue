@@ -203,7 +203,7 @@
         mounted () {
             this.fetchInfo()
             setInterval(this.calcTime, 1000)
-            setInterval(this.clearSelectedDate, 10000)
+            setInterval(this.clearSelectedDate, 24000) //every 4 min
         },
         methods: {
             clearSelectedDate() {
@@ -212,8 +212,8 @@
             },
             fetchInfo() {
                 let method = 'get'
-                let paramDate = this.selectedDate ? this.getParamDate(this.selectedDate) : ''
-                let url = `/dashboardInfo?selectedDate=${paramDate}`
+                let url = ''
+                url = this.selectedDate ? `/dashboardInfo?selectedDate=${this.getParamDate(this.selectedDate)}` : `/dashboardInfo`
                 axios({
                     method,
                     url

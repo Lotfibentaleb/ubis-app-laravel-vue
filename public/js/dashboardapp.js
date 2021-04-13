@@ -2156,7 +2156,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     this.fetchInfo();
     setInterval(this.calcTime, 1000);
-    setInterval(this.clearSelectedDate, 10000);
+    setInterval(this.clearSelectedDate, 24000); //every 4 min
   },
   methods: {
     clearSelectedDate: function clearSelectedDate() {
@@ -2167,8 +2167,8 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       var method = 'get';
-      var paramDate = this.selectedDate ? this.getParamDate(this.selectedDate) : '';
-      var url = "/dashboardInfo?selectedDate=".concat(paramDate);
+      var url = '';
+      url = this.selectedDate ? "/dashboardInfo?selectedDate=".concat(this.getParamDate(this.selectedDate)) : "/dashboardInfo";
       axios({
         method: method,
         url: url
