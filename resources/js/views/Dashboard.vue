@@ -77,7 +77,7 @@
                 category_month_info: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct',
                     'Nov', 'Dec'],
                 diagram_production_data_per_day_options: {
-                    colors : ['#277fe2', '#f9681f', '#3fcc45', '#8a057e', '#312725', '#2d0c77', '#8a0404',
+                    colors : ['#1257a5', '#b34711', '#229627', '#8a057e', '#312725', '#2d0c77', '#8a0404',
                         '#0d6667', '#23567b', '#045361'],
                     chart: {
                         id: 'left_diagram'
@@ -89,13 +89,12 @@
                         {
                             labels: {
                                 style: {
-                                    colors: '#008FFB',
+                                    colors: '#333333',
                                     fontSize: '16'
                                 }
                             },
                             axisBorder: {
                                 show: true,
-                                color: '#008FFB'
                             }
                         }
                     ],
@@ -110,7 +109,7 @@
                         enabled: true,
                         style: {
                             colors: ['#474D52'],
-                            fontSize: '14'
+                            fontSize: '15'
                         },
                         offsetY: -30,
                         formatter: function(value, { seriesIndex, dataPointIndex, w }) {
@@ -156,71 +155,53 @@
                     },
                     yaxis: [
                         {
-                            axisBorder: {
-                                show: true,
-                                color: '#008FFB'
-                            },
-                            labels: {
-                                style: {
-                                    colors: '#008FFB',
-                                    fontSize: '16'
-                                }
-                            },
-                            title: {
-                                text: "",
-                                style: {
-                                    color: '#008FFB',
-                                }
-                            },
-                            tooltip: {
-                                enabled: true
-                            }
-                        },
-                        {
-                            seriesName: 'In Production',
-                            opposite: true,
+                            seriesName: 'Registered',
                             axisTicks: {
-                                show: true,
+                                show: true
                             },
                             axisBorder: {
                                 show: true,
-                                color: '#f9681f'
                             },
                             labels: {
                                 style: {
-                                    colors: '#f9681f',
+                                    colors: '#333333',
                                     fontSize: '16'
-                                }
-                            },
-                            title: {
-                                text: "",
-                                style: {
-                                    color: '#f9681f',
-                                }
-                            },
-                        },
-                        {
-                            seriesName: 'Failed',
-                            opposite: true,
-                            axisTicks: {
-                                show: true,
-                            },
-                            axisBorder: {
-                                show: true,
-                                color: '#867f7b'
-                            },
-                            labels: {
-                                style: {
-                                    colors: '#867f7b',
-                                    fontSize: '15'
                                 },
+                                // formatter: (value) => this.labelFormatter(value)
                             },
-                            title: {
-                                text: "",
+                            tickAmount: 8
+                        },{
+                            seriesName: 'Registered',
+                            show: false
+                        },{
+                            seriesName: 'Registered',
+                            show: false
+                        },{
+                            seriesName: 'Registered',
+                            show: false
+                        },{
+                            opposite: true,
+                            seriesName: 'Rate/hr',
+                            show: true,
+                            axisTicks: {
+                                show: true,
                                 style: {
-                                    color: '#867f7b',
+                                    colors: '#a717bf',
                                 }
-                            }
+                            },
+                            axisBorder: {
+                                show: true,
+                                style: {
+                                    colors: '#a717bf',
+                                }
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#a717bf',
+                                    fontSize: '16'
+                                },
+                                // formatter: (value) => this.labelFormatter(value)
+                            },
                         },
                     ],
                     tooltip: {
@@ -292,6 +273,9 @@
             },
             calcCarouselItemsPerPage() {
                 this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : this.article_list.length
+            },
+            labelFormatter(value) {
+                return value;
             },
             getParamDate(strDate) {
                 let d = new Date(strDate);
