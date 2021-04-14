@@ -143,7 +143,8 @@
                         enabled: false
                     },
                     stroke: {
-                        width: [1, 1, 1, 1, 4]
+                        width: [1, 1, 1, 1, 4],
+                        curve: 'smooth'
                     },
                     title: {
                         text: '',
@@ -167,9 +168,9 @@
                                     colors: '#333333',
                                     fontSize: '16'
                                 },
-                                // formatter: (value) => this.labelFormatter(value)
+                                // formatter: (value, index) => this.labelFormatter(value, index)
                             },
-                            tickAmount: 8
+                            tickAmount: 8,
                         },{
                             seriesName: 'Registered',
                             show: false
@@ -202,6 +203,13 @@
                                 },
                                 // formatter: (value) => this.labelFormatter(value)
                             },
+                            title: {
+                                text: 'Rate/hr',
+                                style: {
+                                    fontSize: '14',
+                                    color: '#a717bf'
+                                }
+                            }
                         },
                     ],
                     tooltip: {
@@ -274,8 +282,12 @@
             calcCarouselItemsPerPage() {
                 this.carouselItemCountsPerPage = this.article_list.length > 2 ? 3 : this.article_list.length
             },
-            labelFormatter(value) {
-                return value;
+            labelFormatter(value, index) {
+                if(index != 0) {
+                    return 5 * (2 ** (index-1))
+                } else {
+                    return 0;
+                }
             },
             getParamDate(strDate) {
                 let d = new Date(strDate);
