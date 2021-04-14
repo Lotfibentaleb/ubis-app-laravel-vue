@@ -1,0 +1,143 @@
+.dashboard-layout{
+    background: white;
+    width: 100%;
+    height: 1000px;
+    .dashboard-container{
+        padding-left: 50px;
+        padding-right: 50px;
+        .dashboard-header{
+            width: 100%;
+            height: 100px;
+            color: black;
+            text-align: right;
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            .date-picker{
+                display: flex;
+                & button{
+                    margin-top: 10px;
+                }
+                & h1{
+                    font-size: 40px;
+                    margin-left: 10px;
+                }
+            }
+            & h1{
+                font-size: 40px;
+                margin-left: 10px;
+            }
+        }
+        .dashboard-carousel-section{
+            width: 100%;
+            height: 300px;
+            .carousel-title{
+                text-align: center;
+                padding-top: 25px;
+                & h1{
+                    width: 100%;
+                    font-size: 30px;
+                }
+            }
+            .carousel-items{
+                .VueCarousel{
+                    .VueCarousel-wrapper{
+                        text-align: -webkit-center;
+                    }
+                }
+                .article-card{
+                    width: 330px;
+                    height: 110px;
+                    border-radius: 20px;
+                    margin-top: 30px;
+                    padding-top: 15px;
+                    color: white;
+                    text-align: center;
+                    &.card-one{
+                        background: #1257a5;
+                        .p-serial-number-text{
+                          font-size: 21px;
+                        }
+                    }
+                    &.card-two{
+                        background: #b34711;
+                        .p-serial-number-text{
+                          font-size: 21px;
+                        }
+                    }
+                    &.card-three {
+                        background: #229627;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-four {
+                        background: #8a057e;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-five {
+                        background: #312725;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-six {
+                        background: #2d0c77;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-seven {
+                        background: #8a0404;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-eight {
+                        background: #0d6667;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-nine {
+                        background: #23567b;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                    &.card-ten {
+                        background: #045361;
+                        .p-serial-number-text {
+                            font-size: 21px;
+                        }
+                    }
+                }
+            }
+        }
+        .dashboard-chart-section{
+            width: 100%;
+            height: 600px;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            .left-diagram{
+                width: 44%;
+                height: 100%;
+            }
+            .date-picker{
+                position: absolute;
+                top: -60px;
+                left: 43%;
+            }
+            .right-diagram{
+                width: 50%;
+                height: 100%;
+            }
+        }
+    }
+}
+.datepicker .dropdown-trigger .input[readonly]{
+    visibility: hidden;
+}
