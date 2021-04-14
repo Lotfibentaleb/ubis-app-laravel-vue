@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use GuzzleHttp;
@@ -18,7 +19,7 @@ class RegistrationController extends Controller
      */
     public function __construct()
     {
-//        $this->middleware('auth');
+
     }
 
     /**
@@ -37,7 +38,6 @@ class RegistrationController extends Controller
         $baseUrl = env('PIS_SERVICE_BASE_URL2');
         $requestString = 'articles?size=10&search='.$request->search_artnr;
         $options = [
-//            'debug' => fopen('php://stderr', 'w'),
             'headers' =>[
             'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
             'Accept'        => 'application/json',
@@ -45,18 +45,9 @@ class RegistrationController extends Controller
             ]
         ];
 
-
-        //$request = $client->createRequest('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
-        //print_r(array($baseUrl.$requestString));
-
-        //$response = $client->request('GET', $baseUrl.$requestString, ['debug' => fopen('php://stderr', 'w')],  $options);   // call API
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
         $body = json_decode($response->getBody()->getContents());
-
-//        echo '<pre>';
-//        print_r(array($baseUrl.$requestString, $statusCode, $body));
-//        die(__FILE__);
 
         return response()->json(array('data' => $body->data), $statusCode);
     }
@@ -68,7 +59,6 @@ class RegistrationController extends Controller
         $baseUrl = env('PIS_SERVICE_BASE_URL2');
         $requestString = 'articles/'.$id;
         $options = [
-//            'debug' => fopen('php://stderr', 'w'),
             'http_errors'=> false,
             'headers' =>[
             'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
@@ -76,9 +66,6 @@ class RegistrationController extends Controller
             'Content-Type' => 'application/json'
             ]
         ];
-
-//        print_r(array($baseUrl.$requestString));
-//        die(__FILE__);
 
         $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
     	$statusCode = $response->getStatusCode();
@@ -135,15 +122,9 @@ class RegistrationController extends Controller
             return response()->json(['message' =>  'Append component failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
         }
 
-        /*{
-            "component_article_nr": "10000214A1",
-            "component_serial_nr": "ffhfnfnf"
-        }*/
-
         $client = new GuzzleHttp\Client();
         $baseUrl = env('PIS_SERVICE_BASE_URL2');
         $options = [
-//            'debug' => fopen('php://stderr', 'w'),
             'http_errors'=> false,
             'headers' =>[
             'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
@@ -250,58 +231,65 @@ class RegistrationController extends Controller
         if($validator->fails()){
             return response()->json(['message' =>  'Requesting product failed. Wrong parameter. '.implode (' ',$validator->errors()->all()).' '.implode('#',$request->all()) ], 422);
         }
+        $cacheKey = $id.$articleNr;
+        $cacheStatusCode = $cacheKey.'statuscode';
+        if (Cache::has($cacheKey)) {
+            $body = Cache::get($cacheKey);
+            $statusCode = Cache::get($cacheStatusCode);
+            return response()->json($body, $statusCode);
+        } else {
+            $client = new GuzzleHttp\Client();
+            $baseUrl = env('PIS_SERVICE_BASE_URL2');
+            $options = [
+                'http_errors'=> false,
+                'headers' =>[
+                    'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
+                    'Accept'        => 'application/json',
+                    'Content-Type' => 'application/json'
+                ]
+            ];
 
-        $client = new GuzzleHttp\Client();
-        $baseUrl = env('PIS_SERVICE_BASE_URL2');
-        $options = [
-//            'debug' => fopen('php://stderr', 'w'),
-            'http_errors'=> false,
-            'headers' =>[
-            'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
-            'Accept'        => 'application/json',
-            'Content-Type' => 'application/json'
-            ]
-        ];
+            $checkUUid = Validator::make(['id' => $id], [
+                'id' => 'required|uuid'
+            ]);
 
-        $checkUUid = Validator::make(['id' => $id], [
-            'id' => 'required|uuid'
-        ]);
+            $product = null;
+            $requestString = 'products/'.$id.($request->input('lookup_subcomponents', false)?'?lookup_subcomponents='.$request['lookup_subcomponents']:'');
+            if( $articleNr != null && $checkUUid->fails() ){
+                // article nr given, get product by serial
+                $requestString = 'products/'.urlencode($id).'?article_nr='.$articleNr.($request->input('lookup_subcomponents', false)?'&lookup_subcomponents='.$request['lookup_subcomponents']:'');
+            }
 
-        $product = null;
-        $requestString = 'products/'.$id.($request->input('lookup_subcomponents', false)?'?lookup_subcomponents='.$request['lookup_subcomponents']:'');
-        if( $articleNr != null && $checkUUid->fails() ){
-            // article nr given, get product by serial
-            $requestString = 'products/'.urlencode($id).'?article_nr='.$articleNr.($request->input('lookup_subcomponents', false)?'&lookup_subcomponents='.$request['lookup_subcomponents']:'');
-        }
+            $response = $client->request('GET', $baseUrl.$requestString, $options);
 
-        $response = $client->request('GET', $baseUrl.$requestString, $options);
-
-        $statusCode = $response->getStatusCode();
-        if( $statusCode != 200){
-            $statusMessage = 'Could not fetch product.';
-            if( $response &&  !empty($response->getBody()) && !empty((string)$response->getBody())){
+            $statusCode = $response->getStatusCode();
+            if( $statusCode != 200){
+                $statusMessage = 'Could not fetch product.';
+                if( $response &&  !empty($response->getBody()) && !empty((string)$response->getBody())){
                     $responseContent = json_decode((string)$response->getBody(), true);
                     $statusMessage = (array_key_exists('error', $responseContent))?$responseContent['error']:$statusMessage;
                     $statusMessage = (array_key_exists('message', $responseContent))?$responseContent['message']:$statusMessage;
+                }
+                return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
             }
-            return response()->json(['code' => $statusCode, 'error' =>  $statusMessage], $statusCode);
-        }
 
-        $body = json_decode((string)$response->getBody());
+            $body = json_decode((string)$response->getBody());
 
-        // resolve subcomponents article names
-        // $body->data->components exists anyways, even empty
-        foreach($body->data->components as $component){
-            $requestString = 'articles/'.$component->st_article_nr;
-            $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
-            $statusCode = $response->getStatusCode();
-            $articleBody = json_decode($response->getBody()->getContents());
-            if( $statusCode == 200 ){
-                $component->st_article_name = $articleBody->data->name;
+            // resolve subcomponents article names
+            // $body->data->components exists anyways, even empty
+            foreach($body->data->components as $component){
+                $requestString = 'articles/'.$component->st_article_nr;
+                $response = $client->request('GET', $baseUrl.$requestString, $options);   // call API
+                $statusCode = $response->getStatusCode();
+                $articleBody = json_decode($response->getBody()->getContents());
+                if( $statusCode == 200 ){
+                    $component->st_article_name = $articleBody->data->name;
+                }
             }
+            Cache::put($cacheKey, $body, $seconds = 3600);
+            Cache::put($cacheStatusCode, $statusCode, $seconds = 3600); //1 hour
+            return response()->json($body, $statusCode);
         }
-
-        return response()->json($body, $statusCode);
     }
 
     /**
@@ -322,7 +310,6 @@ class RegistrationController extends Controller
         $client = new GuzzleHttp\Client();
         $baseUrl = env('PIS_SERVICE_BASE_URL2');
         $options = [
-//            'debug' => fopen('php://stderr', 'w'),
             'http_errors'=> false,
             'headers' =>[
             'Authorization' => 'Bearer ' .env('PIS_BEARER_TOKEN'),
@@ -331,7 +318,6 @@ class RegistrationController extends Controller
             ]
         ];
 
-        // 'products/{id}/components/{componentId}
         $requestString = 'products/'.$product_id.'/components/'.$component_id;
         $response = $client->request('DELETE', $baseUrl.$requestString, $options);
         $statusCode = $response->getStatusCode();

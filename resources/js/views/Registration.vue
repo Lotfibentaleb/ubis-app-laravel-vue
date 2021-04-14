@@ -104,8 +104,6 @@
           </div>
         </card-component>
       </div>
-
-
     </section>
   </div>
 </template>
@@ -172,16 +170,15 @@ export default {
     },
     productSearch: function(){
       if( this.transmissionActive ) return;
-//      this.productDetails = null
       this.transmissionActive = true
       let method = 'get'
+      let searchString = encodeURIComponent(this.productSearch)
       // plain product UUID search
-      let url = `/registration/product/${this.productSearch}/articleNr`
+      let url = `/registration/product/${searchString}/articleNr?lookup_subcomponents=true`
       if( this.articleSelected ){
         // article nr. + article serial search
-        url = `/registration/product/${this.productSearch}/articleNr/${this.articleSelected.articleNumber}`
+        url = `/registration/product/${searchString}/articleNr/${this.articleSelected.articleNumber}?lookup_subcomponents=true`
       }
-
       axios({
         method,
         url
@@ -221,6 +218,13 @@ export default {
     }
   },
   methods: {
+    productionInformation: function(stepName){
+        let result = null;
+        result = this.productDetails.production_information.find( function(currentValue, index, arr){
+          return ( currentValue.step_name === stepName );
+        });
+      return result;
+    },
     // reset local product selection by sub-component event
     handleProductUpdate: function(productSerial, productId ){
       this.productSerial = productSerial

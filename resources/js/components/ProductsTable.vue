@@ -3,7 +3,10 @@
     <modal-trash-box :is-active="isModalActive" :trash-subject="trashObjectName" @confirm="trashConfirm" @cancel="trashCancel"/>
     <b-field grouped group-multiline>
           <b-button type="is-info" disabled>Anzahl Einträge: {{this.total}}</b-button>
+          <a :href="this.filterGeneralUrl"><b-button class="btn excel-export">Download Excel</b-button></a>
+          <a :href="this.filterEnhancedUrl"><b-button class="btn excel-export">Enhanced Excel</b-button></a>
     </b-field>
+
     <b-table
       :checked-rows.sync="checkedRows"
       :checkable="checkable"
@@ -56,17 +59,18 @@
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
-<!--
-            <router-link :to="{name:'products.edit', params: {id: props.row.id}}" class="button is-small is-primary">
-              <b-icon icon="account-edit" size="is-small"/>
-            </router-link>
--->
             <button class="button is-small is-danger" type="button" @click.prevent="trashModal(props.row)">
               <b-icon icon="trash-can" size="is-small"/>
             </button>
           </div>
         </b-table-column>
-
+        <b-table-column custom-key="actions" class="is-actions-cell">
+          <div class="buttons is-right">
+            <button class="button is-small is-success" type="button" @click.prevent="showEditPanel(props.row)">
+              <b-icon icon="google-photos" size="is-small"/>
+            </button>
+          </div>
+        </b-table-column>
       </template>
 
       <section class="section" slot="empty">
@@ -106,10 +110,12 @@
 <script>
 import ModalTrashBox from '@/components/ModalTrashBox'
 import debounce from 'lodash/debounce'
+import downloadexcel from "vue-json-excel";
+import BButton from "buefy/src/components/button/Button";
 
 export default {
   name: 'ProductsTable',
-  components: { ModalTrashBox },
+  components: {BButton, ModalTrashBox, downloadexcel },
   props: {
     dataUrl: {
       type: String,
@@ -126,7 +132,8 @@ export default {
       trashObject: null,
       products: [],
       isLoading: false,
-      perPage: 20,
+      isExcelLoading: false,
+      perPage: 10,
       checkedRows: [],
       sortField:'',
       sortOrder:'asc',
@@ -134,6 +141,18 @@ export default {
       page: 1,
       total: 0,
       filterValues: '{}',
+      filterGeneralUrl: '',
+      filterEnhancedUrl: '',
+      excelProducts: [],
+      jsonFields: {
+        'Artikel-Nr.': 'st_article_nr',
+        'Serial-Nr.': 'st_serial_nr',
+        'Status': 'lifecycle',
+        'Produktionsdaten': 'production_data_count',
+        'Komponenten': 'components_count',
+        'Produktionsauftrag': 'production_order_nr',
+        'Erstellt': 'created_at'
+      },
     }
   },
   watch:{
@@ -151,6 +170,7 @@ export default {
   },
   created () {
     this.getData()
+    this.getFilteringURL ()
   },
   methods: {
     onPageChange(page) {
@@ -163,17 +183,11 @@ export default {
         this.getData()
     },
     onFilterChange: debounce(function (filter) {
-      // st_article_nr: "15"
       console.warn('filter', Object.entries(filter));
       this.filterValues = '';
-/*      Object.entries(filter).forEach(function(element){
-        this.filterValues = this.filterValues+element[0]+"="+element[1]+"&"
-      }, this)
-      console.warn('ErgebnisJSON', JSON.stringify(filter))
-      console.warn('Ergebnis', this.filterValues);
-*/
       this.filterValues = encodeURIComponent(JSON.stringify(filter));
       this.getData()
+      this.getFilteringURL()
     }, 250),
     getData () {
       if (this.dataUrl) {
@@ -192,7 +206,6 @@ export default {
         })
           .get(this.dataUrl+'?'+params)
           .then(r => {
-            console.log(r);
             this.isLoading = false
             if (r.data && r.data.data) {
               this.perPage = r.data.meta.per_page
@@ -211,9 +224,32 @@ export default {
           })
       }
     },
+    getFilteringURL () {
+        if(this.dataUrl){
+            const paramsGeneral = [
+                `enhanced=0`,
+                `sort_by=${this.sortField}.${this.sortOrder}`,
+                `page=${this.page}`,
+                `filter=${this.filterValues}`
+            ].join('&')
+
+            const paramsEnhance = [
+                `enhanced=1`,
+                `sort_by=${this.sortField}.${this.sortOrder}`,
+                `page=${this.page}`,
+                `filter=${this.filterValues}`
+            ].join('&')
+
+            this.filterGeneralUrl = this.dataUrl + '/excel?' + paramsGeneral
+            this.filterEnhancedUrl = this.dataUrl + '/enhancedExcel?' + paramsEnhance
+        }
+    },
     trashModal (trashObject) {
       this.trashObject = trashObject
       this.isModalActive = true
+    },
+    showEditPanel (editableObject) {
+      this.$emit("onSettingShow", editableObject)
     },
     trashConfirm () {
       this.isModalActive = false
@@ -236,6 +272,12 @@ export default {
     },
     trashCancel () {
       this.isModalActive = false
+    },
+    startDownload () {
+      console.log("Started Download!")
+    },
+    finishDownload () {
+      console.log("Finished Download!")
     }
   }
 }
